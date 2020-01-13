@@ -5,12 +5,14 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx webpack && node dist/bundle.js"
+    "start": "npx webpack && nodemon dist/bundle.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "qrcode": "^1.4.4",
     "sqlite": "^3.0.3",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.4"

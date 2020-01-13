@@ -27,3 +27,24 @@
   - Mise à jour régulièrement : **OK**
   - Intégration continue simplifié
   - Répond aux attentes de la volumétrie en termes de requêtes
+
+- TECHNO SERVEUR : 
+
+  - **Express.js**
+
+  - **Webpack**
+
+  - **TypeScript**
+
+    
+
+### Requête API
+
+| Nom  | Method | Body |
+| ---- | ------ | ---- |
+|      |        |      |
+
+ 
+
+
+
