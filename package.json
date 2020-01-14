@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
-    "start": "npx webpack && nodemon dist/bundle.js"
+    "start": "dist/bundle.js"
   },
   "author": "",
   "license": "ISC",
