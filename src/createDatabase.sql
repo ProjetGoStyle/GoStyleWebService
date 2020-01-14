@@ -1,11 +1,11 @@
 create table promotion(
 id int primary key,
-label text
+code text
 );
 
 create table qrcode(
 id int primary key,
-promotionID int,
+promotionId int,
 constraint fk_promotion_qrcode foreign key (promotionID) references promotion(id)
 );
 

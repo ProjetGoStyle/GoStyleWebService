@@ -1,26 +1,35 @@
-import sqlite from "sqlite";
-import { IDatabase } from "./Interfaces/IDatabase";
+const sqlite3 = require("sqlite3").verbose();
 
-export class DatabaseHandler implements IDatabase {
-  private dbPath: string = null;
-  private connectionOptions: Object = null;
+export class DatabaseHandler {
   private static databaseHandler: DatabaseHandler;
+  private dbclient: any = null;
 
-  private constructor(dbPath: string) {
-    this.dbPath = dbPath;
-    this.connectionOptions = {
-      Promise
-    };
+  constructor(dbPath: string) {
+    this.dbclient = new sqlite3.Database(dbPath);
   }
 
-  public static getInstance(dbPath: string) {
-    DatabaseHandler.databaseHandler === null
-      ? new DatabaseHandler(dbPath)
-      : DatabaseHandler.databaseHandler;
-    return DatabaseHandler.databaseHandler;
+  public getCodePromoByQrCodeId(qrCodeId: string, callbackSuccess: Function, callbackError: Function): void {
+    if (!qrCodeId) {
+      callbackError(null);
+      return;
+    }
+    const queryToGetCodePromo: string = `SELECT promotion.code
+                                          FROM qrcode 
+                                          INNER JOIN promotion ON qrcode.promotionId = promotion.id
+                                          WHERE qrcode.id = ?`;
+    this.dbclient.serialize(() => {
+      this.dbclient.get(
+        queryToGetCodePromo,
+        Number(qrCodeId),
+        (err: any, row: any) => {
+          if (row) callbackSuccess(row);
+          else callbackError(err);
+        }
+      );
+    });
   }
 
-  async connect(): Promise<sqlite.Database> {
-    return await sqlite.open(this.dbPath, this.connectionOptions);
+  public close() {
+    this.dbclient.close();
   }
 }
