@@ -1,4 +1,4 @@
-const DatabaseHandler = require("./dal/DatabaseHandler");
+const DatabaseHandler = require("./dal/databasehandler");
 
 require("dotenv").config();
 
