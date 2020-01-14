@@ -18,14 +18,10 @@ export class DatabaseHandler {
                                           INNER JOIN promotion ON qrcode.promotionId = promotion.id
                                           WHERE qrcode.id = ?`;
     this.dbclient.serialize(() => {
-      this.dbclient.get(
-        queryToGetCodePromo,
-        Number(qrCodeId),
-        (err: any, row: any) => {
-          if (row) callbackSuccess(row);
-          else callbackError(err);
-        }
-      );
+      this.dbclient.get(queryToGetCodePromo, Number(qrCodeId), (err: any, row: any) => {
+        if (row) callbackSuccess(row);
+        else callbackError(err);
+      });
     });
   }
 
