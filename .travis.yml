@@ -14,3 +14,4 @@ deploy:
   app: go-style-web-service
   on: master
 
+skip_cleanup: true
