@@ -1,6 +1,9 @@
 language: node_js
 node_js:
   - "stable"
+cache:
+  directories:
+    - "node_modules"
 
 install:
   - npm install -g
@@ -11,3 +14,4 @@ deploy:
   app: go-style-web-service
   on: master
 
+skip_cleanup: true
