@@ -2,7 +2,7 @@
   "name": "gostyle",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "bundle.js",
   "scripts": {
     "test": "mocha",
     "start": "npx webpack && node dist/bundle.js"
