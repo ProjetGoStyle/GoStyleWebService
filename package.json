@@ -2,7 +2,7 @@
   "name": "gostyle",
   "version": "1.0.0",
   "description": "",
-  "main": "bundle.js",
+  "main": "dist/bundle.js",
   "scripts": {
     "test": "mocha",
     "start": "npx webpack && node dist/bundle.js"
@@ -17,12 +17,10 @@
     "sqlite3": "^4.1.1",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.4",
-    "webpack-node-externals": "^1.7.2"
-  },
-  "devDependencies": {
+    "mocha": "^7.0.0",
+    "webpack-node-externals": "^1.7.2",
     "@types/node": "^13.1.6",
     "chai": "^4.2.0",
-    "mocha": "^7.0.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   }
