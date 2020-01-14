@@ -1,4 +1,4 @@
-import { DatabaseHandler } from "./dal/DatabaseHandler";
+const DatabaseHandler = require("./dal/DatabaseHandler");
 
 require("dotenv").config();
 
@@ -6,7 +6,7 @@ const express = require("express");
 const app = express();
 
 app.get("/coupon/:id", async (req: any, res: any) => {
-  const dbclient: DatabaseHandler = new DatabaseHandler(process.env.DBPATH);
+  const dbclient = new DatabaseHandler(process.env.DBPATH);
   res.append("Content-Type", "application/json");
   dbclient.getCodePromoByQrCodeId(req.params.id,
     (row: any) => {
