@@ -1,28 +1,14 @@
 import { resolve } from "dns";
+import { DatabaseHandler } from "./dal/DatabaseHandler";
 
 const express = require("express");
 const QrCode = require("qrcode");
+const app = express();
 
 require("dotenv").config();
 
-const app = express();
+const dbHandler = DatabaseHandler.getInstance(process.env.DBPATH);
 
-app.get("/createqrcode", (req: any, res: any) => {
-  /*res.append("Content-Type", "application/json");
-  QrCode.toFile(
-    "./filename.png",
-    "Je suis un redondindron",
-    {
-      color: {
-        dark: "#00F", // Blue dots
-        light: "#0000" // Transparent background
-      }
-    },
-    (err: any) => {
-      if (err) throw err;
-      console.log("done");
-    }
-  );*/
-});
+app.get("/createqrcode", (req: any, res: any) => {});
 
 app.listen(process.env.PORT);
