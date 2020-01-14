@@ -25,6 +25,19 @@ export class DatabaseHandler {
     });
   }
 
+  public getAll() {
+
+  }
+
+  public insert(query: string) {
+    this.dbclient.serialize(() => {
+      this.dbclient.run(query, (error: any) => {
+        console.log(error);
+      }
+      );
+    });
+  }
+
   public close() {
     this.dbclient.close();
   }

@@ -1,12 +1,13 @@
 import { DatabaseHandler } from './Dal/DatabaseHandler'
+const express = require("express");
 const server_port = process.env.MY_PORT || process.env.PORT || 5000;
 const server_host = process.env.MY_HOST || '0.0.0.0';
-require("dotenv").config();
-
-const express = require("express");
+const url: string = '/api';
 const app = express();
 
-app.get("/coupon/:id", async (req: any, res: any) => {
+require("dotenv").config();
+
+app.get(url + "/coupon/:id", async (req: any, res: any) => {
   const dbclient = new DatabaseHandler(process.env.DBPATH);
   res.append("Content-Type", "application/json");
   dbclient.getCodePromoByQrCodeId(req.params.id,
