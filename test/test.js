@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-import { DatabaseHandler } from './Dal/DatabaseHandler'
+var DatabaseHandler = require('./Dal/DatabaseHandler');
 
 new DatabaseHandler(process.env.DBPATH);
 
