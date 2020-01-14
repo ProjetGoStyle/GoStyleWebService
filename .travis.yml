@@ -8,4 +8,5 @@ cache:
 deploy:
   provider: heroku
   api_key: "5cf439de-8526-4f9c-9a60-ffbe41aaea44"
+  app: go-style-web-service
   on: master
