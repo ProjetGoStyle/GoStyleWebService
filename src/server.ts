@@ -1,4 +1,4 @@
-const DatabaseHandler = require("./dal/databasehandler");
+const DatabaseHandler = require("./dal/DatabaseHandler");
 const server_port = process.env.MY_PORT || process.env.PORT || 5000;
 const server_host = process.env.MY_HOST || '0.0.0.0';
 require("dotenv").config();
