@@ -20,4 +20,4 @@ app.get(url + "/coupon/:id", async (req, res) => {
     });
 });
 
-app.listen(server_port, server_host);
+app.listen(server_port);

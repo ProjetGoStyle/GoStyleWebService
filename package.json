@@ -2,7 +2,7 @@
   "name": "gostyle",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/bundle.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "mocha",
     "start": "node src/server.js"
