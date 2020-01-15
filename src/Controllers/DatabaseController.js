@@ -1,6 +1,6 @@
 const SqliteHandler = require("../Dal/SqliteHandler");
 
-class DatabaseHandler {
+class DatabaseController {
   dbclient = null;
   dbPath = ""
 
@@ -10,7 +10,7 @@ class DatabaseHandler {
   }
 
   async getCodePromoByQrCodeId(qrCodeId) {
-    const lol = await this.dbclient.open(this.dbPath);
+    await this.dbclient.open(this.dbPath);
     const queryToGetCodePromo = `SELECT promotion.code
                                           FROM qrcode 
                                           INNER JOIN promotion ON qrcode.promotionId = promotion.id
@@ -25,4 +25,4 @@ class DatabaseHandler {
   }
 }
 
-module.exports = DatabaseHandler;
+module.exports = DatabaseController;
