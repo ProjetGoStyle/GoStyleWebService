@@ -1,4 +1,6 @@
 require("dotenv").config();
+const server_port = process.env.MY_PORT || process.env.PORT || 5000;
+const server_host = process.env.MY_HOST || '0.0.0.0';
 const DatabaseController = require('./Controllers/DatabaseController')
 const express = require("express");
 const url = '/api';
@@ -18,4 +20,4 @@ app.get(url + "/coupon/:id", async (req, res) => {
     });
 });
 
-app.listen(process.env.MY_PORT);
+app.listen(server_port, server_host);
