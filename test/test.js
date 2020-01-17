@@ -1,6 +1,6 @@
 const assert = require('chai').assert;
-const DatabaseController = require('../src/Controllers/DatabaseController');
-var db = new DatabaseController(':memory:');
+const CodePromoController = require('../src/Controllers/CodePromoController');
+var db = new CodePromoController(':memory:');
 
 describe('API REST', function () {
     before(async () => {
