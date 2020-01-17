@@ -2,7 +2,7 @@ require("dotenv").config();
 const server_port = process.env.PORT || process.env.MY_PORT || 5000;
 const server_host = process.env.MY_HOST || '0.0.0.0';
 //requires
-const DatabaseController = require('./Controllers/DatabaseController')
+const CodePromoController = require('./Controllers/CodePromoController')
 const express = require("express");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -10,7 +10,7 @@ const swaggerUi = require('swagger-ui-express');
 // Initialization variables
 const url = '/api';
 const app = express();
-const dbclient = new DatabaseController(process.env.DBPATH);
+const dbclient = new CodePromoController(process.env.DBPATH);
 const options = {
   definition: {
     openapi: '3.0.0', // Specification (optional, defaults to swagger: '2.0')
@@ -29,6 +29,9 @@ module.exports = swaggerSpec;
 
 // Initialize swagger-jsdoc -> returns validated swagger spec in json format
 app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use(express.json()) // for parsing application/json)
+app.listen(server_port);
 
 /**
  * @swagger
@@ -65,5 +68,45 @@ app.get(url + "/coupon/:id", async (req, res) => {
     });
 });
 
-
-app.listen(server_port);
+/**
+* @swagger
+* 
+*tags:
+* - name: API Code Promotionnel
+*   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels 
+* 
+*paths:
+*  /api/coupon:
+*    post:
+*      description: Permet d'ajouter un code promotionnel
+*      tags: 
+*      - API Code Promotionnel
+*      produces:
+*        - application/json
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: array
+*              items:
+*               type: object
+*               properties:
+*                 code:
+*                   type: string
+*                 description:
+*                   type: string
+*        
+*      responses:
+*        200:
+*          description: Récupération OK
+*/
+app.post(url + "/coupon", async (req, res) => {
+  res.append("Content-Type", "application/json");
+  dbclient.postCodePromo(req.body)
+    .then((result) => {
+      res.send();
+    }).catch((erreur) => {
+      res.status(500).send({ erreur: erreur });
+    });
+});

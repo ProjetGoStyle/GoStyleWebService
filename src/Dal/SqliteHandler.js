@@ -9,7 +9,7 @@ class SqliteHandler {
     open = (path) => {
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(path,
-                (err) => {
+                (err, row) => {
                     if (err) reject("Open error: " + err.message)
                     else resolve(path + " opened")
                 }
@@ -21,9 +21,20 @@ class SqliteHandler {
     run = (query) => {
         return new Promise((resolve, reject) => {
             this.db.run(query,
-                (err) => {
+                (err, row) => {
                     if (err) reject(err.message)
                     else resolve(true)
+                })
+        })
+    }
+
+    // any query: insert/delete/update
+    prepare = (query) => {
+        return new Promise((resolve, reject) => {
+            const prepareQuery = this.db.prepare(query,
+                (err) => {
+                    if (err) reject(err.message)
+                    else resolve(prepareQuery)
                 })
         })
     }

@@ -1,10 +1,13 @@
+-- SQLite
 create table promotion(
-id int primary key,
-code text
+id INTEGER PRIMARY KEY autoincrement,
+code text,
+description text
 );
 
+
 create table qrcode(
-id int primary key,
+id INTEGER PRIMARY KEY autoincrement,
 promotionId int,
 constraint fk_promotion_qrcode foreign key (promotionId) references promotion(id)
 );
