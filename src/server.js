@@ -105,7 +105,7 @@ app.post(url + "/coupon", async (req, res) => {
   res.append("Content-Type", "application/json");
   dbclient.postCodePromo(req.body)
     .then((result) => {
-      res.send();
+      res.send({ message: "Succès" });
     }).catch((erreur) => {
       res.status(500).send({ erreur: erreur });
     });
