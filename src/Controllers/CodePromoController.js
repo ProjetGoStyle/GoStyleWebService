@@ -20,17 +20,26 @@ class CodePromoController {
     return result
   }
 
-  async postCodePromo(objectCodePromo) {
-    await this.sqliteHandler.open(this.dbPath);
-    console.log(objectCodePromo);
-    const query = `INSERT INTO promotion (code,description) VALUES(?,?)`;
-    const stmt = await this.sqliteHandler.prepare(query);
-    for (const codepromo of objectCodePromo) {
-      stmt.run([codepromo.code, codepromo.description]);
-    }
-    stmt.finalize();
-    //const result = await this.db.run(query)
-    await this.sqliteHandler.close();
+  postCodePromo(codepromo) {
+    return new Promise(async (resolve, reject) => {
+      await this.sqliteHandler.open(this.dbPath);
+      const query = `INSERT INTO promotion (code,description) VALUES(?,?)`;
+      let isRejected = false;
+      const stmt = await this.sqliteHandler.prepare(query);
+      const codeExist = await this.sqliteHandler.get('SELECT * FROM promotion WHERE code = ?', codepromo.code);
+      if (!codeExist)
+        stmt.run([codepromo.code, codepromo.description]);
+      else
+        isRejected = true;
+
+      stmt.finalize();
+      await this.sqliteHandler.close();
+      if (isRejected) {
+        reject("Code promotion existant");
+        return;
+      }
+      resolve("Succès");
+    })
   }
 }
 
