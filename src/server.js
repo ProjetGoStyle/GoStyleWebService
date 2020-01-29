@@ -88,8 +88,6 @@ app.get(url + "/coupon/:id", async (req, res) => {
 *        content:
 *          application/json:
 *            schema:
-*              type: array
-*              items:
 *               type: object
 *               properties:
 *                 code:
@@ -105,7 +103,7 @@ app.post(url + "/coupon", async (req, res) => {
   res.append("Content-Type", "application/json");
   dbclient.postCodePromo(req.body)
     .then((result) => {
-      res.send({ message: "Succès" });
+      res.send({ message: result });
     }).catch((erreur) => {
       res.status(500).send({ erreur: erreur });
     });
