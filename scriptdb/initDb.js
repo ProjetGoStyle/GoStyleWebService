@@ -1,4 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
+const cryptotools = require('../src/Controllers/CryptoTools');
 
 const db = new sqlite3.Database("./db/database.db");
 
@@ -20,5 +21,13 @@ db.serialize(() => {
       console.log(error);
     }
   );
+
+  const hashedPassword = cryptotools.encrypt("root");
+    const stmt = db.prepare("INSERT INTO authentification(login, password) VALUES (?,?)");
+    stmt.run(['jeanpascal',hashedPassword],error => {
+            console.log(error);
+        }
+    );
+    stmt.finalize();
 });
 db.close();

@@ -1,11 +1,10 @@
-const SqliteHandler = require("../Dal/SqliteHandler");
 
 class CodePromoController {
   sqliteHandler = null;
-  dbPath = ""
+  dbPath = "";
 
-  constructor(dbPath) {
-    this.sqliteHandler = new SqliteHandler();
+  constructor(dbPath, sqliteHandler) {
+    this.sqliteHandler = sqliteHandler;
     this.dbPath = dbPath
   }
 
@@ -18,6 +17,37 @@ class CodePromoController {
     const result = await this.sqliteHandler.get(queryToGetCodePromo, Number(qrCodeId));
     await this.sqliteHandler.close();
     return result
+  }
+
+  async getCodesPromos(){
+    await this.sqliteHandler.open(this.dbPath);
+    const queryToGetAllCodesPromos = 'SELECT * FROM promotion';
+    const result = await this.sqliteHandler.all(queryToGetAllCodesPromos);
+    await this.sqliteHandler.close();
+    return result;
+  }
+
+  async deleteCodePromo(codePromoId){
+    return new Promise(async (resolve, reject) => {
+      await this.sqliteHandler.open(this.dbPath);
+      const queryToDeleteQrcode = 'DELETE FROM qrcode WHERE promotionId = ?';
+      const queryToDeleteCodePromo = 'DELETE FROM promotion WHERE id = ?';
+      const stmtQrCode = await this.sqliteHandler.prepare(queryToDeleteQrcode);
+      const stmtCodePromo = await this.sqliteHandler.prepare(queryToDeleteCodePromo);
+
+      try{
+        stmtQrCode.run(codePromoId);
+        stmtQrCode.finalize();
+
+        stmtCodePromo.run(codePromoId);
+        stmtCodePromo.finalize();
+      }catch (e) {
+        reject(e);
+        return;
+      }
+      await this.sqliteHandler.close();
+      resolve('succès');
+    });
   }
 
   postCodePromo(codepromo) {
