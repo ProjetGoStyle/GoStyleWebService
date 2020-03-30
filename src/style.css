@@ -10,21 +10,12 @@
     text-align: center;
     color: #333;
 }
-.registration-form{
-    padding: 5%;
-    background: #0062cc;
-    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 9px 26px 0 rgba(0, 0, 0, 0.19);
-}
-.registration-form h3{
-    text-align: center;
-    color: #fff;
-}
 .login-container form{
     padding: 10%;
 }
 .btnSubmit
 {
-    width: 50%;
+    width: 100%;
     border-radius: 1rem;
     padding: 1.5%;
     border: none;
@@ -34,16 +25,6 @@
     font-weight: 600;
     color: #fff;
     background-color: #0062cc;
-}
-.registration-form .btnSubmit{
-    font-weight: 600;
-    color: #0062cc;
-    background-color: #fff;
-}
-.registration-form .ForgetPwd{
-    color: #fff;
-    font-weight: 600;
-    text-decoration: none;
 }
 .connexion-form .ForgetPwd{
     color: #0062cc;
