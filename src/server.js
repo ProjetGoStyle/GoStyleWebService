@@ -11,7 +11,7 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 // Initialization variables
-const url = '/api';
+const api = '/api';
 const app = express();
 const sqliteHandler = new SqliteHandler();
 const dbclient = new CodePromoController(process.env.DBPATH, sqliteHandler);
@@ -39,9 +39,13 @@ app.use((req,res,next) => {
   if(req.session.token) res.status(401).send();
   else next();
 });
+app.use(express.static('./public'));
 app.use(express.json()); // for parsing application/json)
 app.listen(server_port);
 
+app.get('*', async (req,res) => {
+  res.redirect('/login.html');
+});
 /**
  * @swagger
  * 
@@ -67,7 +71,7 @@ app.listen(server_port);
  *        200:
  *          description: Récupération OK
  */
-app.get(url + "/coupon/:id", async (req, res) => {
+app.get(api + "/coupon/:id", async (req, res) => {
   res.append("Content-Type", "application/json");
   dbclient.getCodePromoByQrCodeId(req.params.id)
     .then((result) => {
@@ -108,7 +112,7 @@ app.get(url + "/coupon/:id", async (req, res) => {
 *        200:
 *          description: Récupération OK
 */
-app.post(url + "/coupon", async (req, res) => {
+app.post(api + "/coupon", async (req, res) => {
   res.append("Content-Type", "application/json");
   dbclient.postCodePromo(req.body)
     .then((result) => {
@@ -118,7 +122,7 @@ app.post(url + "/coupon", async (req, res) => {
     });
 });
 
-app.post(url + "/login", async (req, res) => {
+app.post(api + "/login", async (req, res) => {
   res.append("Content-Type", "application/json");
   const token = authController.login(req.params.login, req.params.password);
   if(token) res.redirect('/');
@@ -128,12 +132,12 @@ app.post(url + "/login", async (req, res) => {
   }
 });
 
-app.post(url + "/logout", async (req, res) => {
+app.post(api + "/logout", async (req, res) => {
   res.append("Content-Type", "application/json");
   req.session.token = '';
 });
 
-app.get(url + "/coupons", async (req, res) => {
+app.get(api + "/coupons", async (req, res) => {
   res.append("Content-Type", "application/json");
   dbclient.getCodesPromos()
       .then((result) => {
@@ -143,7 +147,7 @@ app.get(url + "/coupons", async (req, res) => {
   });
 });
 
-app.delete(url + "/coupon/:id", async (req,res) => {
+app.delete(api + "/coupon/:id", async (req,res) => {
   res.append("Content-Type", "application/json");
   dbclient.deleteCodePromo(req.params.id)
       .then((result) => {
