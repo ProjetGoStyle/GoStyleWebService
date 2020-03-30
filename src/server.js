@@ -64,7 +64,7 @@ app.get(url + "/coupon/:id", async (req, res) => {
     .then((result) => {
       res.send({ codepromo: result.code });
     }).catch((erreur) => {
-      res.status(500).send({ erreur: "Not Found" });
+      res.status(404).send({ erreur: "Not Found" });
     });
 });
 
