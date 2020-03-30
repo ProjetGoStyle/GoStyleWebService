@@ -13,6 +13,12 @@ constraint fk_promotion_qrcode foreign key (promotionId) references promotion(id
 );
 
 
+create table authentification(
+id INTEGER PRIMARY KEY autoincrement,
+login text,
+password text
+);
+
 
 
 
