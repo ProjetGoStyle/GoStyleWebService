@@ -10,17 +10,18 @@ class AuthController {
     }
 
     async login(login, password){
-        if(login) return null;
-        if(password) return null;
+        if(!login) return null;
+        if(!password) return null;
         await this.sqliteHandler.open(this.dbPath);
         const queryToGetAccess = `SELECT login, password
                                           FROM authentification
                                           WHERE login = ?`;
         const result = await this.sqliteHandler.get(queryToGetAccess, login);
+        console.log({result});
         await this.sqliteHandler.close();
-        if(result) return null;
+        if(!result) return null;
         if(cryptotools.verify(password,result.password))
-            return crypto.randomBytes(64).toString('base64');
+            return cryptotools.generateToken();
         else return null;
     }
 }

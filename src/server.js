@@ -9,6 +9,8 @@ const AuthController = require('./Controllers/AuthController');
 const express = require("express");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const bodyParser = require('body-parser');
+
 
 // Initialization variables
 const api = '/api';
@@ -36,14 +38,18 @@ module.exports = swaggerSpec;
 app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(session({secret:'secretkey'}));
 app.use((req,res,next) => {
-  if(req.session.token) res.status(401).send();
-  else next();
+  console.log(req.url);
+  if(req.url !== '/login.html' && req.url !== '/' && req.url !== '/css/style.css' && req.url.includes('api'))
+    if(!req.session.token)
+      res.status(401).send();
+
+  next();
 });
 app.use(express.static('./public'));
 app.use(express.json()); // for parsing application/json)
 app.listen(server_port);
 
-app.get('*', async (req,res) => {
+app.get('/', async (req,res) => {
   res.redirect('/login.html');
 });
 /**
@@ -113,8 +119,10 @@ app.get(api + "/coupon/:id", async (req, res) => {
 *          description: Récupération OK
 */
 app.post(api + "/coupon", async (req, res) => {
-  res.append("Content-Type", "application/json");
-  dbclient.postCodePromo(req.body)
+  console.log(req.body);
+  const body = JSON.parse(req.body);
+  console.log(body);
+  dbclient.postCodePromo(body)
     .then((result) => {
       res.send({ message: result });
     }).catch((erreur) => {
@@ -122,19 +130,21 @@ app.post(api + "/coupon", async (req, res) => {
     });
 });
 
-app.post(api + "/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   res.append("Content-Type", "application/json");
-  const token = authController.login(req.params.login, req.params.password);
-  if(token) res.redirect('/');
+  req.session.token = null;
+  const token = await authController.login(req.body.login, req.body.password);
+  console.log({token});
+  if(!token) res.redirect('/');
   else{
     req.session.token = token;
-    res.redirect('/manage');
+    res.redirect('/promocode.html');
   }
 });
 
 app.post(api + "/logout", async (req, res) => {
   res.append("Content-Type", "application/json");
-  req.session.token = '';
+  req.session.token = null;
 });
 
 app.get(api + "/coupons", async (req, res) => {

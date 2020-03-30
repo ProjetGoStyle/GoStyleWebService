@@ -1,12 +1,16 @@
 const passwordHash = require('password-hash');
+const crypto = require('crypto');
 
-const encrypt = (password) => {
-    if(password) return null;
-    return passwordHash.generate(password);
+const cryptotools = {
+    encrypt : (password) => {
+        return passwordHash.generate(password);
+    },
+    verify : (password,hashedPassword) => {
+        return passwordHash.verify(password, hashedPassword);
+    },
+    generateToken : () => {
+        return crypto.randomBytes(64).toString('base64');
+    }
 };
 
-const verify = (password,hashedPassword) => {
-    if(password) return null;
-    if(hashedPassword) return null;
-    return passwordHash.verify(password, hashedPassword);
-};
+module.exports = cryptotools;
