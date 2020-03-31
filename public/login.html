@@ -12,6 +12,7 @@
 </head>
 <body>
 <div class="container login-container">
+    <div id="error"></div>
     <div class="row">
         <div class="col-md-6 offset-md-3 connexion-form">
             <h3>Connexion</h3>
@@ -30,27 +31,7 @@
         </div>
     </div>
 </div>
-<script>
-    const loginInput = document.querySelector('#login');
-    const passwordInput = document.querySelector('#password');
-    const loginForm = document.querySelector('#loginForm');
-    loginForm.onsubmit = (event) => {
-        event.preventDefault();
-        const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                //const code = JSON.parse(this.response);
-            }
-        };
-        xhttp.open('POST', '/login', true);
-        xhttp.setRequestHeader('Content-Type', 'application/json');
-        const formData = {
-            login: loginInput.value,
-            password: passwordInput.value
-        };
-        xhttp.send(JSON.stringify(formData));
-    };
-</script>
+<script src="js/login.js"></script>
 </body>
 </html>
 
