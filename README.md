@@ -11,3 +11,5 @@ Screenshot de la page de login :
 
 Screenshot du back-office : 
 ![back](https://github.com/ProjetGoStyle/GoStyleWebService/blob/master/img/back.png)
+
+L'application est sécurisée par un système de token. Les mots de passes des utilisateurs admin sans hachés dans la base de données.
