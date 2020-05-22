@@ -3,6 +3,7 @@ const server_port = process.env.PORT || process.env.MY_PORT || 5000;
 const server_host = process.env.MY_HOST || '0.0.0.0';
 //requires
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const SqliteHandler = require("../src/Dal/SqliteHandler");
 const CodePromoController = require('./Controllers/CodePromoController');
 const AuthController = require('./Controllers/AuthController');
@@ -40,15 +41,16 @@ app.use(session({ secret: 'secretkey' }));
 
 const isAuth = (req) => {
      const tokenSession = req.session.token;
-     const tokenAuth = req.query.token ? req.query.token : req.get('Authorization');
-     if (!tokenSession && !tokenAuth)
+     const tokenCookie = req.cookies.token;
+     if (!tokenSession && !tokenCookie)
           return false;
-     return tokenSession === tokenAuth;
+     return tokenSession === tokenCookie;
 };
 
 app.use('/style', express.static(pathPublicFolder + '/css'));
 app.use('/js', express.static(pathPublicFolder + '/js'));
 app.use(express.json()); // for parsing application/json)
+app.use(cookieParser())
 app.listen(server_port);
 
 app.get('/', async (req, res) => {
@@ -105,7 +107,9 @@ app.get(api + "/coupon/:id", async (req, res) => {
           });
 });
 
-
+/**
+ * Appel d'API afin de récupérer tous les coupons
+ */
 app.get(api + "/coupons", async (req, res) => {
      if (!isAuth(req)) {
           res.redirect('/unauthorized');
@@ -163,6 +167,11 @@ app.post(api + "/coupon", async (req, res) => {
           });
 });
 
+/**
+ * Permet de se connecter au back-office
+ * @body login
+ * @body password
+ */
 app.post("/login", async (req, res) => {
      res.append("Content-Type", "application/json");
      req.session.token = null;
@@ -177,12 +186,18 @@ app.post("/login", async (req, res) => {
      }
 });
 
+/**
+ * Appel permettant de se déconnecter et efface le token
+ */
 app.post(api + "/logout", async (req, res) => {
      res.append("Content-Type", "application/json");
      req.session.token = null;
 });
 
-
+/**
+ * Appel permettant de supprimer un coupon
+ * @param :id => id du coupon
+ */
 app.delete(api + "/coupon/:id", async (req, res) => {
      if (!isAuth(req)) {
           res.redirect('/unauthorized');
@@ -190,7 +205,7 @@ app.delete(api + "/coupon/:id", async (req, res) => {
      }
      res.append("Content-Type", "application/json");
      if (isNaN(req.params.id)) {
-          res.status(404).send();
+          res.status(500).send();
      }
      dbclient.deleteCodePromo(req.params.id)
           .then((result) => {

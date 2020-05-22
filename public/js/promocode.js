@@ -1,7 +1,6 @@
 
 const header = {
      'Content-Type': 'application/json',
-     'Authorization': window.sessionStorage.getItem('token')
 };
 const cors = 'cors';
 

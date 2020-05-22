@@ -17,7 +17,6 @@ class AuthController {
                                           FROM authentification
                                           WHERE login = ?`;
         const result = await this.sqliteHandler.get(queryToGetAccess, login);
-        console.log({result});
         await this.sqliteHandler.close();
         if(!result) return null;
         if(cryptotools.verify(password,result.password))

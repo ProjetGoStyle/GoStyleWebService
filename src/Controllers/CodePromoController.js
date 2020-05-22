@@ -29,7 +29,6 @@ class CodePromoController {
 
   async deleteCodePromo(codePromoId){
     return new Promise(async (resolve, reject) => {
-      console.log({codePromoId});
       await this.sqliteHandler.open(this.dbPath);
       const queryToDeleteQrcode = 'DELETE FROM qrcode WHERE promotionId = ?';
       const queryToDeleteCodePromo = 'DELETE FROM promotion WHERE id = ?';
