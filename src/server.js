@@ -41,7 +41,7 @@ app.use(session({ secret: 'secretkey' }));
 
 const isAuth = (req) => {
      const tokenSession = req.session.token;
-     const tokenCookie = req.cookies.token;
+     const tokenCookie = req.cookies.token ? req.cookies.token : req.get('Authorization');
      if (!tokenSession && !tokenCookie)
           return false;
      return tokenSession === tokenCookie;
@@ -57,16 +57,26 @@ app.get('/', async (req, res) => {
      res.sendFile(pathPublicFolder + '/login.html');
 });
 
-app.get('/unauthorized', async (req, res) => {
-     res.status(401).sendFile(pathPublicFolder + '/unauthorization.html');
-});
-
 app.get('/promocodes', (req, res) => {
      if (!isAuth(req)) {
           res.redirect('/');
           return;
      }
      res.sendFile(pathPublicFolder + '/promocode.html');
+});
+
+app.post(api+"/auth", async (req, res) => {
+    res.append("Content-Type", "application/json");
+    req.session.token = null;
+    const token = await authController.login(req.body.login, req.body.password);
+    if (!token)
+        res.status(401).send();
+    else {
+        req.session.token = token;
+        res.status(200).send(JSON.stringify({
+            token: token
+        }));
+    }
 });
 
 /**
@@ -96,9 +106,13 @@ app.get('/promocodes', (req, res) => {
  */
 app.get(api + "/coupon/:id", async (req, res) => {
      res.append("Content-Type", "application/json");
-     if (isNaN(req.params.id)) {
-          res.status(404).send();
-     }
+    if (isNaN(req.params.id)) {
+        res.status(404).send();
+    }
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
      dbclient.getCodePromoByQrCodeId(req.params.id)
           .then((result) => {
                res.send(result);
@@ -112,7 +126,7 @@ app.get(api + "/coupon/:id", async (req, res) => {
  */
 app.get(api + "/coupons", async (req, res) => {
      if (!isAuth(req)) {
-          res.redirect('/unauthorized');
+          res.status(401).send();
           return;
      }
      res.append("Content-Type", "application/json");
@@ -156,8 +170,8 @@ app.get(api + "/coupons", async (req, res) => {
 */
 app.post(api + "/coupon", async (req, res) => {
      if (!isAuth(req)) {
-          res.redirect('/unauthorized');
-          return;
+        res.status(401).send();
+        return;
      }
      dbclient.postCodePromo(req.body)
           .then((result) => {
@@ -189,7 +203,7 @@ app.post("/login", async (req, res) => {
 /**
  * Appel permettant de se déconnecter et efface le token
  */
-app.post(api + "/logout", async (req, res) => {
+app.post("/logout", async (req, res) => {
      res.append("Content-Type", "application/json");
      req.session.token = null;
 });
@@ -200,8 +214,8 @@ app.post(api + "/logout", async (req, res) => {
  */
 app.delete(api + "/coupon/:id", async (req, res) => {
      if (!isAuth(req)) {
-          res.redirect('/unauthorized');
-          return;
+         res.status(401).send();
+         return;
      }
      res.append("Content-Type", "application/json");
      if (isNaN(req.params.id)) {
