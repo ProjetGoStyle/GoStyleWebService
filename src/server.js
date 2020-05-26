@@ -109,10 +109,10 @@ app.get(api + "/coupon/:id", async (req, res) => {
     if (isNaN(req.params.id)) {
         res.status(404).send();
     }
-    if (!isAuth(req)) {
+    /*if (!isAuth(req)) {
         res.status(401).send();
         return;
-    }
+    }*/
      dbclient.getCodePromoByQrCodeId(req.params.id)
           .then((result) => {
                res.send(result);

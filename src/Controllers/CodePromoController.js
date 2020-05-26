@@ -1,12 +1,14 @@
+const Controller = require('./Controller');
+const  StatistiqueController = require('./StatistiqueController');
 
-class CodePromoController {
-  sqliteHandler = null;
-  dbPath = "";
 
-  constructor(dbPath, sqliteHandler) {
-    this.sqliteHandler = sqliteHandler;
-    this.dbPath = dbPath
-  }
+class CodePromoController extends Controller{
+
+    statistiqueController;
+    constructor(dbPath, sqliteHandler) {
+        super(dbPath,sqliteHandler);
+        this.statistiqueController = new StatistiqueController(dbPath, sqliteHandler);
+    }
 
   async getCodePromoByQrCodeId(qrCodeId) {
     await this.sqliteHandler.open(this.dbPath);
@@ -15,6 +17,13 @@ class CodePromoController {
                                           INNER JOIN promotion ON qrcode.promotionId = promotion.id
                                           WHERE qrcode.id = ?`;
     const result = await this.sqliteHandler.get(queryToGetCodePromo, Number(qrCodeId));
+    if(result){
+        try{
+            await this.statistiqueController.insertUtilisation(qrCodeId);
+        }catch (e) {
+            console.error(e);
+        }
+    }
     await this.sqliteHandler.close();
     return result
   }
@@ -27,6 +36,28 @@ class CodePromoController {
     return result;
   }
 
+  async updateCodePromo({code,description,id}){
+      return new Promise(async (resolve,reject) => {
+          if(!code){
+              reject("Le code promotionnel est vide ..");
+              return;
+          }
+          await this.sqliteHandler.open(this.dbPath);
+          const queryToUpdateCodePromo = "UPDATE promotion SET code = ?, description = ?  WHERE id = ?";
+          try{
+              const stmtUpdate = await this.sqliteHandler.prepare(queryToUpdateCodePromo);
+              stmtUpdate.run([code,description, id]);
+              stmtUpdate.finalize();
+          }catch (e) {
+              console.log(e);
+              reject(e);
+              return;
+          }
+          await this.sqliteHandler.close();
+          resolve("succès");
+      });
+  }
+
   async deleteCodePromo(codePromoId){
     return new Promise(async (resolve, reject) => {
       await this.sqliteHandler.open(this.dbPath);
@@ -34,7 +65,6 @@ class CodePromoController {
       const queryToDeleteCodePromo = 'DELETE FROM promotion WHERE id = ?';
       const stmtQrCode = await this.sqliteHandler.prepare(queryToDeleteQrcode);
       const stmtCodePromo = await this.sqliteHandler.prepare(queryToDeleteCodePromo);
-
       try{
         stmtQrCode.run(codePromoId);
         stmtQrCode.finalize();
