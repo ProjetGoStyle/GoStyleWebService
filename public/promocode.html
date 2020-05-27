@@ -13,31 +13,18 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="btn" href="/promocodes" id="managecodepromo">Codes promotionnels</a>
-        <a class="btn" href="/administrateurs" id="manageadmin">Administrateurs</a>
-        <button class="btn btn-primary" id="logout">Déconnexion</button>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+        <div>
+            <a class="btn" href="/promocodes" id="managecodepromo">Codes promotionnels</a>
+            <a class="btn" href="/administrateurs" id="manageadmin">Administrateurs</a>
+        </div>
+        <div class="my-2 my-lg-0">
+            <button class="btn btn-primary" id="logout">Déconnexion</button>
+        </div>
     </nav>
      <div class="container">
           <div id="error"></div>
-          <div class="row pb-2">
-              <h4>Ajout d'un code promotionnel</h4>
-               <form class="col-md-12" id="addForm">
-                    <div class="form-row">
-                         <div class="col-md-5">
-                              <input type="text" name="promoCode" id="promoCodeInput" class="form-control"
-                                   placeholder="Le code promo" value="" />
-                         </div>
-                         <div class="col-md-5">
-                              <input type="text" name="description" id="descriptionInput" class="form-control"
-                                   placeholder="La description du code promo" value="" />
-                         </div>
-                         <div class="col-md-2">
-                              <input type="submit" class="btn btn-success" name="add" value="Ajouter" />
-                         </div>
-                    </div>
-               </form>
-          </div>
+
           <div class="row">
               <h4>Gestion des codes promotionnels</h4>
               <table class="table">
@@ -52,15 +39,63 @@
                     <tbody id="promoCodes"></tbody>
                </table>
           </div>
+         <div class="row">
+             <form class="col-md-6" id="addCodePromo">
+                 <h4>Ajout d'un code promotionnel</h4>
+                 <div class="form-group">
+                     <label for="promoCodeInput">Code promo : </label>
+                     <input type="text" name="promoCode" id="promoCodeInput" class="form-control"
+                            placeholder="Le code promo" value="" />
+                 </div>
+                 <div class="form-group">
+                     <label for="descriptionInput">Description : </label>
+                     <input type="text" name="description" id="descriptionInput" class="form-control"
+                            placeholder="La description du code promo" value="" />
+                 </div>
+                 <div class="form-group">
+                     <input type="submit" class="btn btn-success" name="add" value="Ajouter" />
+                 </div>
+             </form>
+             <form class="col-md-6" id="updateCodePromo">
+                 <h4>Modifier un code promotionnel</h4>
+                 <input id="codepromoIdUpdate" name="codepromoIdUpdate" type="hidden" value="">
+                 <div class="form-group">
+                     <label for="promoCodeInputUpdate">Code promo : </label>
+                     <input type="text" name="promoCode" id="promoCodeInputUpdate" class="form-control"
+                            placeholder="Le code promo" value="" disabled/>
+                 </div>
+                 <div class="form-group">
+                     <label for="descriptionInputUpdate">Description : </label>
+                     <input type="text" name="description" id="descriptionInputUpdate" class="form-control"
+                            placeholder="La description du code promo" value="" disabled/>
+                 </div>
+                 <div class="form-group">
+                     <input type="submit" class="btn btn-primary" name="update" value="Modifier" />
+                 </div>
+             </form>
+         </div>
      </div>
      <div class="container">
          <h4>Statistiques</h4>
-         <p id="avgUseCurrentWeek">Moyenne d'utilisation des codes promotions pour cette semaine : </p>
-         <p id="avgUsePreviousWeek">Moyenne d'utilisation des codes promotions pour la semaine dernière : </p>
-         <p>Nombre d'utilisation total : </p>
-         <ul id="numberOfUseByCodePromo">
-
-         </ul>
+         <div class="row">
+             <div class="card text-center">
+                 <div class="card-header">
+                     Moyenne d'utilisation des codes promotions de cette semaine
+                 </div>
+                 <div class="card-body">
+                     <h5 id="avgUseCurrentWeek" class="card-title"></h5>
+                 </div>
+             </div>
+             <div class="card text-center">
+                 <div  class="card-header">
+                     Moyenne d'utilisation des codes promotions de la semaine dernière
+                 </div>
+                 <div class="card-body">
+                     <h5 id="avgUsePreviousWeek" class="card-title"></h5>
+                 </div>
+             </div>
+         </div>
+         <ul id="numberOfUseByCodePromo" class="list-group"></ul>
      </div>
     <script src="/js/options.js"></script>
     <script src="/js/promocode.js"></script>

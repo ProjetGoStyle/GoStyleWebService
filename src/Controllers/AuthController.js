@@ -67,21 +67,26 @@ class AuthController extends Controller{
 
     async updateAdmin({id,login,email, password}){
         return new Promise(async (resolve,reject) => {
-            if (!id || !login || !email || !password){
-                reject("Tous les champs ne sont pas remplis");
+            if (!id || !login || !email){
+                reject("Login ou/et email vides ..");
                 return;
             }
-            const loginExist = await this.getLoginExist(login);
+            await this.sqliteHandler.open(this.dbPath);
+            const loginExist = await this.sqliteHandler.get('SELECT * FROM administrateur WHERE login = ? AND id != ?', [login,id]);
             if(loginExist){
                 reject("Login déjà existant ..");
                 return;
             }
-            await this.sqliteHandler.open(this.dbPath);
-            const queryToUpdateAdmin = "UPDATE administrateur SET login = ?, email = ?, password = ?  WHERE id = ?";
+            let queryToUpdateAdmin = "UPDATE administrateur SET login = ?, email = ?, password = ?  WHERE id = ?";
+            let params = [login, email,password,id];
+            if(!password){
+                queryToUpdateAdmin = queryToUpdateAdmin.replace(', password = ?',' ');
+                params = [login, email,id]
+            }
             password = cryptotools.encrypt(password);
             try{
                 const stmtUpdate = await this.sqliteHandler.prepare(queryToUpdateAdmin);
-                stmtUpdate.run([login, email,password,id]);
+                stmtUpdate.run(params);
                 stmtUpdate.finalize();
             }catch (e) {
                 console.log(e);

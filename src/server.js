@@ -119,10 +119,10 @@ app.get(api + "/coupon/:id", async (req, res) => {
     if (isNaN(req.params.id)) {
         res.status(404).send();
     }
-    /*if (!isAuth(req)) {
+    if (!isAuth(req)) {
         res.status(401).send();
         return;
-    }*/
+    }
      codePromoController.getCodePromoByQrCodeId(req.params.id)
           .then((result) => {
                res.send(result);
@@ -191,6 +191,29 @@ app.post(api + "/coupon", async (req, res) => {
           });
 });
 
+app.put(api+'/coupon/:id', async(req,res) => {
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
+    res.append("Content-Type", "application/json");
+    if (isNaN(req.params.id)) {
+        res.status(500).send();
+    }
+    const updateCodePromo = {
+        code: req.body.code,
+        description: req.body.description,
+        id: req.params.id
+    };
+    codePromoController.updateCodePromo(updateCodePromo)
+        .then(()=> {
+            res.status(200).send();
+        })
+        .catch((err) => {
+            res.status(500).send();
+        });
+});
+
 /**
  * Permet de se connecter au back-office
  * @body login
@@ -250,12 +273,11 @@ app.get(api + '/statistiques' , async (req,res) => {
         numberOfUseByCodePromo: null
     }
     try{
-        //const avgCurrentWeek = await statistiqueController.avgUtilisationForWeek(false);
-        //const avgPreviousWeek = await statistiqueController.avgUtilisationForWeek(true);
-        //const numberOfUseByCodePromo = await statistiqueController.countUtilisationByCodePromo();
-        //statistics["avgPreviousWeek"] = avgPreviousWeek[0].avgUse;
-        //statistics["avgCurrentWeek"] = avgCurrentWeek[0].avgUse;
-        //statistics["numberOfUseByCodePromo"] = numberOfUseByCodePromo;
+        const avgCurrentWeek = await statistiqueController.avgUtilisationForWeek(false);
+        const avgPreviousWeek = await statistiqueController.avgUtilisationForWeek(true);
+        statistics["avgPreviousWeek"] = avgPreviousWeek[0].avgUse;
+        statistics["avgCurrentWeek"] = avgCurrentWeek[0].avgUse;
+        statistics["numberOfUseByCodePromo"] = await statistiqueController.countUtilisationByCodePromo();
         res.status(200).send(statistics);
     }catch (err) {
         res.status(500).send(err);

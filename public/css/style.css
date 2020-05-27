@@ -35,3 +35,12 @@
 .row{
     margin: 2em 0 2em 0 !important;
 }
+
+.container{
+    margin-top: 5em !important;
+    margin-bottom: 5em !important;
+}
+
+tr:hover{
+    cursor: pointer;
+}

@@ -21,8 +21,6 @@ class StatistiqueController extends Controller{
         return dateNow;
     }
 
-
-
     async insertUtilisation(qrCodeId){
         return new Promise(async(resolve,reject) => {
             if(!qrCodeId){
@@ -40,7 +38,7 @@ class StatistiqueController extends Controller{
 
             const stmt = await this.sqliteHandler.prepare(queryToInsertUtilisation);
             try{
-                stmt.run([qrCodeId, this.getDateNow()])
+                stmt.run([qrCodeId, this.convertToString(new Date())])
                 stmt.finalize();
             }catch (e) {
                 console.error(e);
@@ -96,7 +94,6 @@ class StatistiqueController extends Controller{
                     params = [this.convertToString(startDatePrevious),this.convertToString(startDate)];
                 }else
                     params = [this.convertToString(startDate),this.convertToString(new Date())];
-
                 result = await this.sqliteHandler.all(queryAvgUtilisationByDay, params);
             }catch (e) {
                 console.error(e);

@@ -38,11 +38,16 @@ class CodePromoController extends Controller{
 
   async updateCodePromo({code,description,id}){
       return new Promise(async (resolve,reject) => {
-          if(!code){
-              reject("Le code promotionnel est vide ..");
+          if(!code || !id){
+              reject("Le code promotionnel et/ou l'id est vide ..");
               return;
           }
           await this.sqliteHandler.open(this.dbPath);
+          const codeExist = await this.sqliteHandler.get('SELECT * FROM promotion WHERE code = ? AND id != ?', [code,id]);
+          if(codeExist){
+              reject("Le code promo existe déjà");
+              return;
+          }
           const queryToUpdateCodePromo = "UPDATE promotion SET code = ?, description = ?  WHERE id = ?";
           try{
               const stmtUpdate = await this.sqliteHandler.prepare(queryToUpdateCodePromo);
@@ -54,8 +59,7 @@ class CodePromoController extends Controller{
           }finally {
               await this.sqliteHandler.close();
           }
-          await this.sqliteHandler.close();
-          resolve("succès");
+          resolve();
       });
   }
 
@@ -82,7 +86,7 @@ class CodePromoController extends Controller{
     });
   }
 
-  postCodePromo(codepromo) {
+  async postCodePromo(codepromo) {
     return new Promise(async (resolve, reject) => {
       if(!codepromo.code){
         reject("Le champ code promo est vide ..");

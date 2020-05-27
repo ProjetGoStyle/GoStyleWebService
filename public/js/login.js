@@ -1,5 +1,7 @@
 const alert = document.querySelector('#error');
 document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+document.cookie = 'login=;expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+
 
 const displayError = (errormessage) => {
      console.log(errormessage);
@@ -24,12 +26,14 @@ loginForm.onsubmit = (event) => {
           }),
 
      }).then(async (response) => {
-          const json = await response.json();
-          alert.innerHTML = '';
-          const date = new Date();
-          date.setTime(date.getTime() + (300000));
-          document.cookie = `token=${json.token};expires=${date.toUTCString()};`;
-          window.location.replace('/promocodes');
+            const json = await response.json();
+            alert.innerHTML = '';
+            const date = new Date();
+            date.setTime(date.getTime() + (300000));
+            document.cookie = `token=${json.token};expires=${date.toUTCString()}; `;
+            document.cookie = `login=${loginInput.value};expires=${date.toUTCString()}; `;
+
+            window.location.replace('/promocodes');
 
      }).catch((error) => {
           displayError('Login/ Mot de passe incorrect');
