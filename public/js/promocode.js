@@ -1,22 +1,14 @@
+const promoCodeTable = document.querySelector('#promoCodes');
+const promoCodeInput = document.querySelector('#promoCodeInput');
+const descriptionInput = document.querySelector('#descriptionInput');
 
-const header = {
-     'Content-Type': 'application/json',
-};
-const cors = 'cors';
+const avgUseCurrentWeek = document.querySelector('#avgUseCurrentWeek');
+const avgUsePreviousWeek = document.querySelector('#avgUsePreviousWeek');
+const numberOfUseByCodePromo = document.querySelector('#numberOfUseByCodePromo');
 
-const errorDiv = document.querySelector('#error');
-const displayError = (errormessage) => {
-     errorDiv.innerHTML = `<div class="alert alert-danger alert-dismissible" id="error" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    &times;
-                                </button>${errormessage}
-                            </div>`
-};
-const catchFunction = (error) => {
-     console.table(error);
-     displayError(error.erreur);
-};
-function createTableElement(id, promoCode, description) {
+const addForm = document.querySelector('#addForm');
+
+function createTableElementForCodePromo(id, promoCode, description) {
      const tr = document.createElement('tr');
      const rowNumber = document.createElement('th');
      rowNumber.setAttribute('scope', 'row');
@@ -56,7 +48,6 @@ function createTableElement(id, promoCode, description) {
      return tr;
 }
 
-const promoCodeTable = document.querySelector('#promoCodes');
 
 fetch('/api/coupons', {
      method: 'GET',
@@ -65,13 +56,9 @@ fetch('/api/coupons', {
 }).then(async (response) => {
      const promoCodes = await response.json();
      for (const code of promoCodes)
-          promoCodeTable.appendChild(createTableElement(code.id, code.code, code.description));
+          promoCodeTable.appendChild(createTableElementForCodePromo(code.id, code.code, code.description));
 }).catch(catchFunction);
 
-
-const promoCodeInput = document.querySelector('#promoCodeInput');
-const descriptionInput = document.querySelector('#descriptionInput');
-const addForm = document.querySelector('#addForm');
 addForm.onsubmit = (event) => {
      event.preventDefault();
      fetch('/api/coupon', {
@@ -87,17 +74,23 @@ addForm.onsubmit = (event) => {
           if (response.status === 500)
                displayError(codepromo.erreur);
           else
-               promoCodeTable.appendChild(createTableElement(codepromo.id, codepromo.code, codepromo.description));
+               promoCodeTable.appendChild(createTableElementForCodePromo(codepromo.id, codepromo.code, codepromo.description));
      }).catch(catchFunction);
 };
 
-const logoutButton = document.querySelector('#logout');
-logoutButton.onclick = () => {
-     fetch('/logout', {
-          method: 'GET',
-          mode: cors,
-          headers: header
-     }).then((response) => {
-          window.location.replace('/');
-     }).catch(catchFunction);
-};
+fetch('/api/statistiques', {
+    method: 'GET',
+    mode: cors,
+    headers: header,
+}).then(async(response) => {
+    const statistics = await response.json();
+    avgUseCurrentWeek.innerHTML += statistics.avgCurrentWeek
+    avgUsePreviousWeek.innerHTML += statistics.avgPreviousWeek
+    /*for(const nbOfUseForOneCodePromo of statistics.numberOfUseByCodePromo){
+        const li = document.createElement('li');
+        li.innerHTML = `Code promotionnel: ${nbOfUseForOneCodePromo.code} - Utilisations: ${nbOfUseForOneCodePromo.countUse} `;
+        numberOfUseByCodePromo.appendChild(li);
+    }*/
+
+}).catch(catchFunction);
+

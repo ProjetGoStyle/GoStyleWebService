@@ -54,14 +54,13 @@ class SqliteHandler {
     // set of rows read
     all = (query, params) => {
         return new Promise((resolve, reject) => {
-            if (params == undefined) params = []
-
-            this.db.all(query, params, (err, rows) => {
-                if (err) reject("Read error: " + err.message)
-                else {
-                    resolve(rows)
-                }
-            })
+            if (params === undefined) params = []
+                this.db.all(query, params, (err, rows) => {
+                    if (err) reject("Read error: " + err.message)
+                    else {
+                        resolve(rows)
+                    }
+                });
         })
     }
 

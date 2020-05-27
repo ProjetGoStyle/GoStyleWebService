@@ -17,14 +17,14 @@ class CodePromoController extends Controller{
                                           INNER JOIN promotion ON qrcode.promotionId = promotion.id
                                           WHERE qrcode.id = ?`;
     const result = await this.sqliteHandler.get(queryToGetCodePromo, Number(qrCodeId));
-    if(result){
-        try{
-            await this.statistiqueController.insertUtilisation(qrCodeId);
-        }catch (e) {
-            console.error(e);
-        }
-    }
     await this.sqliteHandler.close();
+      if(result){
+          try{
+              await this.statistiqueController.insertUtilisation(qrCodeId);
+          }catch (e) {
+              console.error(e);
+          }
+      }
     return result
   }
 
@@ -51,7 +51,8 @@ class CodePromoController extends Controller{
           }catch (e) {
               console.log(e);
               reject(e);
-              return;
+          }finally {
+              await this.sqliteHandler.close();
           }
           await this.sqliteHandler.close();
           resolve("succès");
@@ -74,9 +75,9 @@ class CodePromoController extends Controller{
       }catch (e) {
         console.log(e);
         reject(e);
-        return;
+      }finally {
+          await this.sqliteHandler.close();
       }
-      await this.sqliteHandler.close();
       resolve('succès');
     });
   }

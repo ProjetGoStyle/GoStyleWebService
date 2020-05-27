@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const SqliteHandler = require("../src/Dal/SqliteHandler");
 const CodePromoController = require('./Controllers/CodePromoController');
 const AuthController = require('./Controllers/AuthController');
+const StatistiqueController = require('./Controllers/StatistiqueController');
 const express = require("express");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -17,8 +18,9 @@ const pathPublicFolder = __dirname.slice(0, __dirname.length - 3) + '/public';
 const api = '/api';
 const app = express();
 const sqliteHandler = new SqliteHandler();
-const dbclient = new CodePromoController(process.env.DBPATH, sqliteHandler);
+const codePromoController = new CodePromoController(process.env.DBPATH, sqliteHandler);
 const authController = new AuthController(process.env.DBPATH, sqliteHandler);
+const statistiqueController = new StatistiqueController(process.env.DBPATH, sqliteHandler);
 const options = {
      definition: {
           openapi: '3.0.0', // Specification (optional, defaults to swagger: '2.0')
@@ -63,6 +65,14 @@ app.get('/promocodes', (req, res) => {
           return;
      }
      res.sendFile(pathPublicFolder + '/promocode.html');
+});
+
+app.get('/administrateurs', (req, res) => {
+    if (!isAuth(req)) {
+        res.redirect('/');
+        return;
+    }
+    res.sendFile(pathPublicFolder + '/administrateur.html');
 });
 
 app.post(api+"/auth", async (req, res) => {
@@ -113,11 +123,11 @@ app.get(api + "/coupon/:id", async (req, res) => {
         res.status(401).send();
         return;
     }*/
-     dbclient.getCodePromoByQrCodeId(req.params.id)
+     codePromoController.getCodePromoByQrCodeId(req.params.id)
           .then((result) => {
                res.send(result);
           }).catch((erreur) => {
-               res.status(404).send({ erreur: "Not Found" });
+               res.status(404).send(erreur);
           });
 });
 
@@ -130,11 +140,11 @@ app.get(api + "/coupons", async (req, res) => {
           return;
      }
      res.append("Content-Type", "application/json");
-     dbclient.getCodesPromos()
+     codePromoController.getCodesPromos()
           .then((result) => {
                res.status(200).send(result);
           }).catch((erreur) => {
-               res.status(404).send({ erreur: "Not Found" });
+               res.status(404).send(erreur);
           });
 });
 /**
@@ -173,11 +183,11 @@ app.post(api + "/coupon", async (req, res) => {
         res.status(401).send();
         return;
      }
-     dbclient.postCodePromo(req.body)
+     codePromoController.postCodePromo(req.body)
           .then((result) => {
                res.status(200).send(result);
           }).catch((erreur) => {
-               res.status(500).send({ erreur: erreur });
+               res.status(500).send(erreur);
           });
 });
 
@@ -221,10 +231,109 @@ app.delete(api + "/coupon/:id", async (req, res) => {
      if (isNaN(req.params.id)) {
           res.status(500).send();
      }
-     dbclient.deleteCodePromo(req.params.id)
+     codePromoController.deleteCodePromo(req.params.id)
           .then((result) => {
                res.status(200).send();
           }).catch((erreur) => {
-               res.status(404).send({ erreur: 'Not found' });
+               res.status(404).send(erreur);
           });
+});
+
+app.get(api + '/statistiques' , async (req,res) => {
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
+    const statistics = {
+        avgPreviousWeek: null,
+        avgCurrentWeek: null,
+        numberOfUseByCodePromo: null
+    }
+    try{
+        //const avgCurrentWeek = await statistiqueController.avgUtilisationForWeek(false);
+        //const avgPreviousWeek = await statistiqueController.avgUtilisationForWeek(true);
+        //const numberOfUseByCodePromo = await statistiqueController.countUtilisationByCodePromo();
+        //statistics["avgPreviousWeek"] = avgPreviousWeek[0].avgUse;
+        //statistics["avgCurrentWeek"] = avgCurrentWeek[0].avgUse;
+        //statistics["numberOfUseByCodePromo"] = numberOfUseByCodePromo;
+        res.status(200).send(statistics);
+    }catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+app.post(api + '/admin', async(req,res) => {
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
+    const authObject = {
+        login : req.body.login,
+        email: req.body.email,
+        password: req.body.password
+    }
+    authController.insertAdmin(authObject)
+        .then((newAdmin) => {
+            res.status(200).send(newAdmin);
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+        });
+});
+
+app.get(api + '/admins', async(req,res) => {
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
+    res.append("Content-Type", "application/json");
+    authController.getAdmins()
+        .then((admins) => {
+            res.status(200).send(admins);
+        }).catch((err) => {
+            res.status(500).send(err);
+        });
+});
+
+app.delete(api + '/admin/:id', async(req,res) => {
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
+    res.append("Content-Type", "application/json");
+    if (isNaN(req.params.id)) {
+        res.status(500).send();
+    }
+
+    authController.deleteAdmin(req.params.id)
+        .then((response) => {
+            res.status(200).send();
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+        });
+});
+
+app.put(api + '/admin/:id', async(req,res) => {
+    if (!isAuth(req)) {
+        res.status(401).send();
+        return;
+    }
+    res.append("Content-Type", "application/json");
+    if (isNaN(req.params.id)) {
+        res.status(500).send();
+    }
+    const authObject = {
+        id: req.params.id,
+        login: req.body.login,
+        email: req.body.email,
+        password: req.body.password
+    };
+    authController.updateAdmin(authObject)
+        .then((response) => {
+            res.status(200).send();
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+        })
 });

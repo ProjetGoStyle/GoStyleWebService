@@ -6,6 +6,23 @@ class StatistiqueController extends Controller{
         super(dbPath,sqliteHandler);
     }
 
+    convertToString(date){
+        const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
+        const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(date);
+        const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
+
+        return `${ye}-${mo}-${da}`;
+    }
+
+    getStartWeek(date){
+        const dateNow = date;
+        const dayOfWeek = dateNow.getDay() - 1;
+        dateNow.setDate(dateNow.getDate() - dayOfWeek);
+        return dateNow;
+    }
+
+
+
     async insertUtilisation(qrCodeId){
         return new Promise(async(resolve,reject) => {
             if(!qrCodeId){
@@ -20,38 +37,75 @@ class StatistiqueController extends Controller{
                                                     where qrcode.id = ?),
                                                     ?
                                                   )`;
+
             const stmt = await this.sqliteHandler.prepare(queryToInsertUtilisation);
             try{
-                stmt.run([qrCodeId, new Date()])
+                stmt.run([qrCodeId, this.getDateNow()])
                 stmt.finalize();
             }catch (e) {
                 console.error(e);
                 reject(e)
-                return;
+            }finally {
+                await this.sqliteHandler.close();
             }
-            await this.sqliteHandler.close();
             resolve();
         });
     }
 
     async countUtilisationByCodePromo(){
-        const queryToCountUtilisationByCodePromo = `select count(utilisation.id)
+        return new Promise(async(resolve,reject) => {
+            await this.sqliteHandler.open(this.dbPath);
+            const queryToCountUtilisationByCodePromo = `select promotion.code as "code" ,count(utilisation.id) as "countUse"
                                                     from promotion
                                                     inner join utilisation on utilisation.promotionId = promotion.id
                                                     group by promotion.id`;
+            let result;
+            try{
+                result = await this.sqliteHandler.all(queryToCountUtilisationByCodePromo);
+            }catch (e) {
+                console.error(e);
+                reject(e);
+            }finally {
+                await this.sqliteHandler.close();
+            }
+            resolve(result);
+        });
     }
 
-    async avgUtilisationByDay(){
-        const queryAvgUtilisationByDay = `select (promotion.id) 
-                                          from promotion 
-                                          inner join utilisation 
-                                          on utilisation.promotionId = promotion.id 
-                                          where utilisation.dateUtilisation `;
-        const query = `select count(utilisation.id)
-                        from promotion
-                        inner join utilisation on utilisation.promotionId = promotion.id
-                        where date(utilisation.dateUtilisation) between date(utilisation.dateUtilisation) and DATE(date(utilisation.dateUtilisation),'-7 day')
-                        group by date(utilisation.dateUtilisation)`;
+    /**
+     *
+     * @param previousWeek : boolean
+     * @returns {Promise<unknown>}
+     */
+    async avgUtilisationForWeek(previousWeek){
+        return new Promise(async(resolve,reject) => {
+            await this.sqliteHandler.open(this.dbPath);
+            const queryAvgUtilisationByDay = `select avg("nombreUtilisation") as "avgUse"
+                                            from (select promotion.id as "promotionId",count(utilisation.id) as "nombreUtilisation"
+                                            from promotion
+                                            inner join utilisation on utilisation.promotionId = promotion.id
+                                            where utilisation.dateUtilisation between ? and ?
+                                            group by "promotionId")`;
+            let result, params;
+            try{
+                const startDate = this.getStartWeek(new Date());
+                if(previousWeek === true){
+                    const startDatePrevious = new Date();
+                    startDatePrevious.setDate(startDate.getDate() - 7);
+                    startDate.setDate(startDate.getDate() - 1);
+                    params = [this.convertToString(startDatePrevious),this.convertToString(startDate)];
+                }else
+                    params = [this.convertToString(startDate),this.convertToString(new Date())];
+
+                result = await this.sqliteHandler.all(queryAvgUtilisationByDay, params);
+            }catch (e) {
+                console.error(e);
+                reject(e);
+            }finally {
+                await this.sqliteHandler.close();
+            }
+            resolve(result);
+        });
     }
 }
 

@@ -13,15 +13,15 @@
 </head>
 
 <body>
-     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="btn" href="/promocodes" id="managecodepromo">Codes promotionnels</a>
+        <a class="btn" href="/administrateurs" id="manageadmin">Administrateurs</a>
         <button class="btn btn-primary" id="logout">Déconnexion</button>
-        <button class="btn" id="statistic">Statistiques</button>
-        <button class="btn" id="managecodepromo">Gestion des codes promotionnels</button>
-     </nav>
+    </nav>
      <div class="container">
           <div id="error"></div>
           <div class="row pb-2">
-              <h4 class="display-4">Ajout d'un code promotionnel</h4>
+              <h4>Ajout d'un code promotionnel</h4>
                <form class="col-md-12" id="addForm">
                     <div class="form-row">
                          <div class="col-md-5">
@@ -38,9 +38,8 @@
                     </div>
                </form>
           </div>
-          <hr/>
           <div class="row">
-              <h4 class="display-4">Gestion des code promotionnels</h4>
+              <h4>Gestion des codes promotionnels</h4>
               <table class="table">
                     <thead>
                          <tr>
@@ -54,7 +53,18 @@
                </table>
           </div>
      </div>
-     <script src="/js/promocode.js"></script>
+     <div class="container">
+         <h4>Statistiques</h4>
+         <p id="avgUseCurrentWeek">Moyenne d'utilisation des codes promotions pour cette semaine : </p>
+         <p id="avgUsePreviousWeek">Moyenne d'utilisation des codes promotions pour la semaine dernière : </p>
+         <p>Nombre d'utilisation total : </p>
+         <ul id="numberOfUseByCodePromo">
+
+         </ul>
+     </div>
+    <script src="/js/options.js"></script>
+    <script src="/js/promocode.js"></script>
+
 </body>
 
 </html>
