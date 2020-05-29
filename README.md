@@ -6,10 +6,18 @@ Ce projet comprend :
 - Une application mobile, développée en React Native afin que l'utilisateur puisse scanner un QrCode de promotion.
 - L'intégration continue du projet grâce à Travis
 
-Screenshot de la page de login : 
+Page de login : 
 ![login](https://github.com/ProjetGoStyle/GoStyleWebService/blob/master/img/login.png)
 
-Screenshot du back-office : 
-![back](https://github.com/ProjetGoStyle/GoStyleWebService/blob/master/img/back.png)
+Partie gestion des codes promotionnels : 
+![back](https://github.com/ProjetGoStyle/GoStyleWebService/blob/master/img/codepromo.png)
 
-L'application est sécurisée par un système de token. Les mots de passes des utilisateurs admin sans hachés dans la base de données.
+Partie statistiques d'utilisations : 
+![back](https://github.com/ProjetGoStyle/GoStyleWebService/blob/master/img/statistiques.png)
+
+Partie gestion des administrateurs : 
+![back](https://github.com/ProjetGoStyle/GoStyleWebService/blob/master/img/admin.png)
+
+- L'application est sécurisée par un système de token. 
+- Les mots de passes des administrateurs sont hachés dans la base de données.
+- Des règles métiers sont mis en place (ex: l'utilisateur actuel du site ne peut pas se supprimer ou encore un login est unique)
