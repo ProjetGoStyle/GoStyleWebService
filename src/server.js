@@ -75,6 +75,64 @@ app.get('/administrateurs', (req, res) => {
     res.sendFile(pathPublicFolder + '/administrateur.html');
 });
 
+/**
+ * Permet de se connecter au back-office
+ * @body login
+ * @body password
+ */
+app.post("/login", async (req, res) => {
+    res.append("Content-Type", "application/json");
+    req.session.token = null;
+    const token = await authController.login(req.body.login, req.body.password);
+    if (!token)
+        res.redirect(404, '/');
+    else {
+        req.session.token = token;
+        res.status(200).send(JSON.stringify({
+            token: token
+        }));
+    }
+});
+
+/**
+ * Appel permettant de se déconnecter et efface le token
+ */
+app.post("/logout", async (req, res) => {
+    res.append("Content-Type", "application/json");
+    req.session.token = null;
+});
+
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/auth:
+ *    get:
+ *      description: Permet de récupérer le token d'authentification
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *               type: object
+ *               properties:
+ *                 login:
+ *                   type: string
+ *                 password:
+ *                   type: string
+ *
+ *      responses:
+ *        200:
+ *          description: Succès
+ */
 app.post(api+"/auth", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
@@ -112,7 +170,7 @@ app.post(api+"/auth", async (req, res) => {
  *          type: int
  *      responses:
  *        200:
- *          description: Récupération OK
+ *          description: Succès
  */
 app.get(api + "/coupon/:id", async (req, res) => {
      res.append("Content-Type", "application/json");
@@ -132,7 +190,23 @@ app.get(api + "/coupon/:id", async (req, res) => {
 });
 
 /**
- * Appel d'API afin de récupérer tous les coupons
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/coupons:
+ *    get:
+ *      description: Permet de récupérer les codes promotionnels
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: Succès
  */
 app.get(api + "/coupons", async (req, res) => {
      if (!isAuth(req)) {
@@ -147,6 +221,7 @@ app.get(api + "/coupons", async (req, res) => {
                res.status(404).send(erreur);
           });
 });
+
 /**
 * @swagger
 * 
@@ -176,7 +251,7 @@ app.get(api + "/coupons", async (req, res) => {
 *        
 *      responses:
 *        200:
-*          description: Récupération OK
+*          description: Succès
 */
 app.post(api + "/coupon", async (req, res) => {
      if (!isAuth(req)) {
@@ -191,6 +266,31 @@ app.post(api + "/coupon", async (req, res) => {
           });
 });
 
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/coupon/{codepromotionId}:
+ *    get:
+ *      description: Permet de mettre à jour le code promotionnel
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - in: path
+ *          name: codepromotionId
+ *          description: Id du code promotionnel
+ *          required: true
+ *          type: int
+ *      responses:
+ *        200:
+ *          description: Succès
+ */
 app.put(api+'/coupon/:id', async(req,res) => {
     if (!isAuth(req)) {
         res.status(401).send();
@@ -215,35 +315,29 @@ app.put(api+'/coupon/:id', async(req,res) => {
 });
 
 /**
- * Permet de se connecter au back-office
- * @body login
- * @body password
- */
-app.post("/login", async (req, res) => {
-     res.append("Content-Type", "application/json");
-     req.session.token = null;
-     const token = await authController.login(req.body.login, req.body.password);
-     if (!token)
-          res.redirect(404, '/');
-     else {
-          req.session.token = token;
-          res.status(200).send(JSON.stringify({
-               token: token
-          }));
-     }
-});
-
-/**
- * Appel permettant de se déconnecter et efface le token
- */
-app.post("/logout", async (req, res) => {
-     res.append("Content-Type", "application/json");
-     req.session.token = null;
-});
-
-/**
- * Appel permettant de supprimer un coupon
- * @param :id => id du coupon
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/coupon/{codepromotionId}:
+ *    get:
+ *      description: Permet de supprimer le code promotionnel
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - in: path
+ *          name: codepromotionId
+ *          description: Id code promotionnel
+ *          required: true
+ *          type: int
+ *      responses:
+ *        200:
+ *          description: Succès
  */
 app.delete(api + "/coupon/:id", async (req, res) => {
      if (!isAuth(req)) {
@@ -262,6 +356,25 @@ app.delete(api + "/coupon/:id", async (req, res) => {
           });
 });
 
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/statistiques:
+ *    get:
+ *      description: Permet de récupérer les sttistiques d'utilisation
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: Succès
+ */
 app.get(api + '/statistiques' , async (req,res) => {
     if (!isAuth(req)) {
         res.status(401).send();
@@ -284,6 +397,39 @@ app.get(api + '/statistiques' , async (req,res) => {
     }
 });
 
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/admin:
+ *    get:
+ *      description: Permet d'ajouter un administrateur
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *               type: object
+ *               properties:
+ *                 login:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 password:
+ *                   type: string
+ *
+ *      responses:
+ *        200:
+ *          description: Succès
+ */
 app.post(api + '/admin', async(req,res) => {
     if (!isAuth(req)) {
         res.status(401).send();
@@ -303,6 +449,25 @@ app.post(api + '/admin', async(req,res) => {
         });
 });
 
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/admins:
+ *    get:
+ *      description: Permet de récupérer les administrateurs
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: Succès
+ */
 app.get(api + '/admins', async(req,res) => {
     if (!isAuth(req)) {
         res.status(401).send();
@@ -317,6 +482,31 @@ app.get(api + '/admins', async(req,res) => {
         });
 });
 
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/admin/{adminId}:
+ *    get:
+ *      description: Permet de supprimer un administrateur
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - in: path
+ *          name: adminId
+ *          description: ID de l'administrateur
+ *          required: true
+ *          type: int
+ *      responses:
+ *        200:
+ *          description: Succès
+ */
 app.delete(api + '/admin/:id', async(req,res) => {
     if (!isAuth(req)) {
         res.status(401).send();
@@ -336,6 +526,31 @@ app.delete(api + '/admin/:id', async(req,res) => {
         });
 });
 
+/**
+ * @swagger
+ *
+ * tags:
+ * - name: API Code Promotionnel
+ *   description: Regroupe les requêtes d'accès à la base de données stockant les codes promotionnels
+ *
+ *paths:
+ *  /api/admin/{adminId}:
+ *    get:
+ *      description: Permet de modifier un administrateur
+ *      tags:
+ *      - API Code Promotionnel
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - in: path
+ *          name: adminId
+ *          description: ID de l'administrateur
+ *          required: true
+ *          type: int
+ *      responses:
+ *        200:
+ *          description: Récupération OK
+ */
 app.put(api + '/admin/:id', async(req,res) => {
     if (!isAuth(req)) {
         res.status(401).send();
