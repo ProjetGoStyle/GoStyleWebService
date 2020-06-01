@@ -13,14 +13,16 @@ const numberOfUseByCodePromo = document.querySelector('#numberOfUseByCodePromo')
 const addCodePromo = document.querySelector('#addCodePromo');
 addCodePromo.onsubmit = (event) => {
     event.preventDefault();
+    const codeObject = {
+        code: escapeHtml(promoCodeInputUpdate.value),
+        description: escapeHtml(descriptionInputUpdate.value)
+    };
+
     fetch('/api/coupon', {
         method: 'POST',
         mode: cors,
         headers: header,
-        body: JSON.stringify({
-            code: promoCodeInput.value,
-            description: descriptionInput.value
-        })
+        body: JSON.stringify(codeObject)
     }).then(async (response) => {
         const codepromo = await response.json();
         if (response.status === 500)
@@ -33,14 +35,16 @@ addCodePromo.onsubmit = (event) => {
 const updateCodePromo = document.querySelector('#updateCodePromo');
 updateCodePromo.onsubmit = (event) => {
     event.preventDefault();
+    const codeObject = {
+        code: escapeHtml(promoCodeInputUpdate.value),
+        description: escapeHtml(descriptionInputUpdate.value)
+    };
+
     fetch('/api/coupon/'+codepromoIdUpdate.value, {
         method: 'PUT',
         mode: cors,
         headers: header,
-        body: JSON.stringify({
-            code: promoCodeInputUpdate.value,
-            description: descriptionInputUpdate.value
-        })
+        body: JSON.stringify(codeObject)
     }).then(async (response) => {
         location.reload();
     }).catch(catchFunction);

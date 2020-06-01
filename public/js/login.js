@@ -14,16 +14,19 @@ const passwordInput = document.querySelector('#password');
 const loginForm = document.querySelector('#loginForm');
 loginForm.onsubmit = (event) => {
      event.preventDefault();
+     const loginObject = {
+        login: escapeHtml(loginInput.value),
+        password:  escapeHtml(passwordInput.value)
+     };
+
+
      fetch('/login', {
           method: 'POST',
           mode: 'cors',
           headers: {
                'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-               login: loginInput.value,
-               password: passwordInput.value
-          }),
+          body: JSON.stringify(loginObject),
 
      }).then(async (response) => {
             const json = await response.json();
@@ -32,7 +35,6 @@ loginForm.onsubmit = (event) => {
             date.setTime(date.getTime() + (300000));
             document.cookie = `token=${json.token};expires=${date.toUTCString()}; `;
             document.cookie = `login=${loginInput.value};expires=${date.toUTCString()}; `;
-
             window.location.replace('/promocodes');
 
      }).catch((error) => {

@@ -49,6 +49,25 @@ const isAuth = (req) => {
      return tokenSession === tokenCookie;
 };
 
+const escapeHtml = (text) => {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+const checkInputToEscapeHtml = (inputObject) => {
+    for (const property in inputObject) {
+        if(inputObject.hasOwnProperty(property))
+            inputObject[property] = escapeHtml(inputObject[property])
+    }
+    return inputObject;
+}
+
 app.use('/style', express.static(pathPublicFolder + '/css'));
 app.use('/js', express.static(pathPublicFolder + '/js'));
 app.use(express.json()); // for parsing application/json)
@@ -83,7 +102,8 @@ app.get('/administrateurs', (req, res) => {
 app.post("/login", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
-    const token = await authController.login(req.body.login, req.body.password);
+    setTimeout(() => {},1500);
+    const token = await authController.login(escapeHtml(req.body.login), escapeHtml(req.body.password));
     if (!token)
         res.redirect(404, '/');
     else {
@@ -136,7 +156,8 @@ app.post("/logout", async (req, res) => {
 app.post(api+"/auth", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
-    const token = await authController.login(req.body.login, req.body.password);
+    setTimeout(() => {},1500);
+    const token = await authController.login(escapeHtml(req.body.login), escapeHtml(req.body.password));
     if (!token)
         res.status(401).send();
     else {
@@ -258,7 +279,8 @@ app.post(api + "/coupon", async (req, res) => {
         res.status(401).send();
         return;
      }
-     codePromoController.postCodePromo(req.body)
+     const couponAdmin = checkInputToEscapeHtml(req.body);
+     codePromoController.postCodePromo(couponAdmin)
           .then((result) => {
                res.status(200).send(result);
           }).catch((erreur) => {
@@ -305,7 +327,8 @@ app.put(api+'/coupon/:id', async(req,res) => {
         description: req.body.description,
         id: req.params.id
     };
-    codePromoController.updateCodePromo(updateCodePromo)
+
+    codePromoController.updateCodePromo(checkInputToEscapeHtml(updateCodePromo))
         .then(()=> {
             res.status(200).send();
         })
@@ -440,7 +463,7 @@ app.post(api + '/admin', async(req,res) => {
         email: req.body.email,
         password: req.body.password
     }
-    authController.insertAdmin(authObject)
+    authController.insertAdmin(checkInputToEscapeHtml(authObject))
         .then((newAdmin) => {
             res.status(200).send(newAdmin);
         })
@@ -566,7 +589,9 @@ app.put(api + '/admin/:id', async(req,res) => {
         email: req.body.email,
         password: req.body.password
     };
-    authController.updateAdmin(authObject)
+
+
+    authController.updateAdmin(checkInputToEscapeHtml(authObject))
         .then((response) => {
             res.status(200).send();
         })
