@@ -49,21 +49,29 @@ const isAuth = (req) => {
      return tokenSession === tokenCookie;
 };
 
-const escapeHtml = (text) => {
+const replaceSymbol = (text) => {
+    const regexp = /[&<>"'/=]/g;
     const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
+        '&': '',
+        '<': '',
+        '>': '',
+        '"': '',
+        "'": '',
+        "=": '',
+        "/": ''
     };
-    return text.replace(/[&<>"']/g, (m) => map[m]);
+    let charFind = text.search(regexp);
+    while(charFind !== -1){
+        text = text.replace(regexp, (m) => map[m]);
+        charFind = text.search(regexp);
+    }
+    return text;
 }
 
-const checkInputToEscapeHtml = (inputObject) => {
+const checkInputToReplaceSymbol = (inputObject) => {
     for (const property in inputObject) {
         if(inputObject.hasOwnProperty(property))
-            inputObject[property] = escapeHtml(inputObject[property])
+            inputObject[property] = replaceSymbol(inputObject[property])
     }
     return inputObject;
 }
@@ -103,7 +111,7 @@ app.post("/login", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
     setTimeout(() => {},1500);
-    const token = await authController.login(escapeHtml(req.body.login), escapeHtml(req.body.password));
+    const token = await authController.login(replaceSymbol(req.body.login), replaceSymbol(req.body.password));
     if (!token)
         res.redirect(404, '/');
     else {
@@ -157,7 +165,7 @@ app.post(api+"/auth", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
     setTimeout(() => {},1500);
-    const token = await authController.login(escapeHtml(req.body.login), escapeHtml(req.body.password));
+    const token = await authController.login(replaceSymbol(req.body.login), replaceSymbol(req.body.password));
     if (!token)
         res.status(401).send();
     else {
@@ -279,7 +287,7 @@ app.post(api + "/coupon", async (req, res) => {
         res.status(401).send();
         return;
      }
-     const couponAdmin = checkInputToEscapeHtml(req.body);
+     const couponAdmin = checkInputToReplaceSymbol(req.body);
      codePromoController.postCodePromo(couponAdmin)
           .then((result) => {
                res.status(200).send(result);
@@ -328,7 +336,7 @@ app.put(api+'/coupon/:id', async(req,res) => {
         id: req.params.id
     };
 
-    codePromoController.updateCodePromo(checkInputToEscapeHtml(updateCodePromo))
+    codePromoController.updateCodePromo(checkInputToReplaceSymbol(updateCodePromo))
         .then(()=> {
             res.status(200).send();
         })
@@ -463,7 +471,7 @@ app.post(api + '/admin', async(req,res) => {
         email: req.body.email,
         password: req.body.password
     }
-    authController.insertAdmin(checkInputToEscapeHtml(authObject))
+    authController.insertAdmin(checkInputToReplaceSymbol(authObject))
         .then((newAdmin) => {
             res.status(200).send(newAdmin);
         })
@@ -591,7 +599,7 @@ app.put(api + '/admin/:id', async(req,res) => {
     };
 
 
-    authController.updateAdmin(checkInputToEscapeHtml(authObject))
+    authController.updateAdmin(checkInputToReplaceSymbol(authObject))
         .then((response) => {
             res.status(200).send();
         })

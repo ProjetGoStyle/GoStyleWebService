@@ -14,9 +14,11 @@ const addCodePromo = document.querySelector('#addCodePromo');
 addCodePromo.onsubmit = (event) => {
     event.preventDefault();
     const codeObject = {
-        code: escapeHtml(promoCodeInputUpdate.value),
-        description: escapeHtml(descriptionInputUpdate.value)
+        code: promoCodeInputUpdate.value,
+        description: descriptionInputUpdate.value
     };
+
+    if(!checkCodePromoObject(codeObject)) return;
 
     fetch('/api/coupon', {
         method: 'POST',
@@ -36,9 +38,11 @@ const updateCodePromo = document.querySelector('#updateCodePromo');
 updateCodePromo.onsubmit = (event) => {
     event.preventDefault();
     const codeObject = {
-        code: escapeHtml(promoCodeInputUpdate.value),
-        description: escapeHtml(descriptionInputUpdate.value)
+        code: promoCodeInputUpdate.value,
+        description: descriptionInputUpdate.value
     };
+
+    if(!checkCodePromoObject(codeObject)) return;
 
     fetch('/api/coupon/'+codepromoIdUpdate.value, {
         method: 'PUT',
@@ -98,7 +102,7 @@ const createTableElementForCodePromo = (id, promoCode, description) => {
     return tr;
 }
 
-const getDatas = async () => {
+const getCouponAndStats = async () => {
     try{
         const response = await fetch('/api/coupons', {
             method: 'GET',
@@ -139,7 +143,15 @@ const getDatas = async () => {
     }
 }
 
-getDatas().then();
+const checkCodePromoObject = (codeObject) => {
+    if(!checkIfSymbol(codeObject.code) || !checkIfSymbol(codeObject.description)){
+        displayError(errorMessageSymbol);
+        return false;
+    }
+    return true;
+}
+
+getCouponAndStats().then();
 
 
 

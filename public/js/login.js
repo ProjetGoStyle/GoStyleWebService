@@ -15,10 +15,14 @@ const loginForm = document.querySelector('#loginForm');
 loginForm.onsubmit = (event) => {
      event.preventDefault();
      const loginObject = {
-        login: escapeHtml(loginInput.value),
-        password:  escapeHtml(passwordInput.value)
+        login: loginInput.value,
+        password:  passwordInput.value
      };
 
+     if(!checkIfSymbol(loginObject.login)){
+         displayError('Les symboles suivants ne sont pas autorisés : (& < > \\ / " \' / =)');
+         return;
+     }
 
      fetch('/login', {
           method: 'POST',
