@@ -139,7 +139,7 @@ app.post("/logout", async (req, res) => {
  *
  *paths:
  *  /api/auth:
- *    get:
+ *    post:
  *      description: Permet de récupérer le token d'authentification
  *      tags:
  *      - API Code Promotionnel
@@ -305,7 +305,7 @@ app.post(api + "/coupon", async (req, res) => {
  *
  *paths:
  *  /api/coupon/{codepromotionId}:
- *    get:
+ *    put:
  *      description: Permet de mettre à jour le code promotionnel
  *      tags:
  *      - API Code Promotionnel
@@ -354,7 +354,7 @@ app.put(api+'/coupon/:id', async(req,res) => {
  *
  *paths:
  *  /api/coupon/{codepromotionId}:
- *    get:
+ *    delete:
  *      description: Permet de supprimer le code promotionnel
  *      tags:
  *      - API Code Promotionnel
@@ -437,7 +437,7 @@ app.get(api + '/statistiques' , async (req,res) => {
  *
  *paths:
  *  /api/admin:
- *    get:
+ *    post:
  *      description: Permet d'ajouter un administrateur
  *      tags:
  *      - API Code Promotionnel
@@ -522,7 +522,7 @@ app.get(api + '/admins', async(req,res) => {
  *
  *paths:
  *  /api/admin/{adminId}:
- *    get:
+ *    delete:
  *      description: Permet de supprimer un administrateur
  *      tags:
  *      - API Code Promotionnel
@@ -566,7 +566,7 @@ app.delete(api + '/admin/:id', async(req,res) => {
  *
  *paths:
  *  /api/admin/{adminId}:
- *    get:
+ *    put:
  *      description: Permet de modifier un administrateur
  *      tags:
  *      - API Code Promotionnel
