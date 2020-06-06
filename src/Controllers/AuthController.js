@@ -9,8 +9,7 @@ class AuthController extends Controller{
     }
 
     async login(login, password){
-        if(!login) return null;
-        if(!password) return null;
+        if(!login || !password) return null;
         const result = await this.getLoginExist(login);
         if(!result) return null;
         if(cryptotools.verify(password,result.password))

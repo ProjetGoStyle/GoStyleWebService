@@ -13,7 +13,6 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const pathPublicFolder = __dirname.slice(0, __dirname.length - 3) + '/public';
 
-
 // Initialization variables
 const api = '/api';
 const app = express();
@@ -33,10 +32,8 @@ const options = {
      apis: [__dirname + '/server.js'],
      basePath: 'api/'
 };
-
 const swaggerSpec = swaggerJSDoc(options);
 module.exports = swaggerSpec;
-
 
 app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(session({ secret: 'secretkey' }));
@@ -48,7 +45,6 @@ const isAuth = (req) => {
           return false;
      return tokenSession === tokenCookie;
 };
-
 const replaceSymbol = (text) => {
     const regexp = /[&<>"'/=]/g;
     const map = {
@@ -67,8 +63,10 @@ const replaceSymbol = (text) => {
     }
     return text;
 }
-
 const checkInputToReplaceSymbol = (inputObject) => {
+    if(!inputObject)
+        return null;
+
     for (const property in inputObject) {
         if(inputObject.hasOwnProperty(property))
             inputObject[property] = replaceSymbol(inputObject[property])
@@ -85,7 +83,6 @@ app.listen(server_port);
 app.get('/', async (req, res) => {
      res.sendFile(pathPublicFolder + '/login.html');
 });
-
 app.get('/promocodes', (req, res) => {
      if (!isAuth(req)) {
           res.redirect('/');
@@ -93,7 +90,6 @@ app.get('/promocodes', (req, res) => {
      }
      res.sendFile(pathPublicFolder + '/promocode.html');
 });
-
 app.get('/administrateurs', (req, res) => {
     if (!isAuth(req)) {
         res.redirect('/');
@@ -549,7 +545,7 @@ app.delete(api + '/admin/:id', async(req,res) => {
     }
 
     authController.deleteAdmin(req.params.id)
-        .then((response) => {
+        .then(() => {
             res.status(200).send();
         })
         .catch((err) => {

@@ -14,8 +14,8 @@ const addCodePromo = document.querySelector('#addCodePromo');
 addCodePromo.onsubmit = (event) => {
     event.preventDefault();
     const codeObject = {
-        code: promoCodeInputUpdate.value,
-        description: descriptionInputUpdate.value
+        code: promoCodeInput.value,
+        description: descriptionInput.value
     };
 
     if(!checkCodePromoObject(codeObject)) return;
@@ -60,21 +60,17 @@ const createTableElementForCodePromo = (id, promoCode, description) => {
     const rowNumber = document.createElement('th');
     rowNumber.setAttribute('scope', 'row');
     rowNumber.innerText = id;
-
     tr.appendChild(rowNumber);
 
     const codeElement = document.createElement('td');
     codeElement.innerText = promoCode;
-
     tr.appendChild(codeElement);
 
     const descElement = document.createElement('td');
     descElement.innerText = description;
-
     tr.appendChild(descElement);
 
     const deleteElement = document.createElement('td');
-
     const deleteButton = document.createElement('button');
     deleteButton.value = 'x';
     deleteButton.onclick = () => {
@@ -98,7 +94,6 @@ const createTableElementForCodePromo = (id, promoCode, description) => {
         codepromoIdUpdate.value = id;
     }
     tr.appendChild(deleteElement);
-
     return tr;
 }
 
@@ -123,8 +118,8 @@ const getCouponAndStats = async () => {
             headers: header,
         });
         const statistics = await response.json();
-        avgUseCurrentWeek.innerHTML += statistics.avgCurrentWeek
-        avgUsePreviousWeek.innerHTML += statistics.avgPreviousWeek
+        avgUseCurrentWeek.innerHTML += statistics.avgCurrentWeek ? statistics.avgCurrentWeek : 0
+        avgUsePreviousWeek.innerHTML += statistics.avgPreviousWeek ? statistics.avgPreviousWeek : 0
         for(const nbOfUseForOneCodePromo of statistics.numberOfUseByCodePromo) {
             const li = document.createElement('li');
             li.setAttribute("class", "list-group-item d-flex justify-content-between align-items-center");

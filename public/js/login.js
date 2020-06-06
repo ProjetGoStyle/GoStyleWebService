@@ -2,7 +2,6 @@ const alert = document.querySelector('#error');
 document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;'
 document.cookie = 'login=;expires=Thu, 01 Jan 1970 00:00:00 UTC;'
 
-
 const displayError = (errormessage) => {
      console.log(errormessage);
      alert.innerHTML = `<div class="alert alert-danger alert-dismissible" id="error" role="alert">

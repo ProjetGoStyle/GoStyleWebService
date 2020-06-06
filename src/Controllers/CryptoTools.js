@@ -9,7 +9,7 @@ const cryptotools = {
         return passwordHash.verify(password, hashedPassword);
     },
     generateToken : () => {
-        return crypto.randomBytes(64).toString('base64');
+        return crypto.randomBytes(128).toString('base64');
     }
 };
 
