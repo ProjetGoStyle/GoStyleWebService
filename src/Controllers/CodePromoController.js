@@ -43,6 +43,13 @@ class CodePromoController extends Controller{
               return;
           }
           await this.sqliteHandler.open(this.dbPath);
+          const queryToGetCodePromo = 'SELECT * FROM promotion WHERE id = ?';
+          const codepromoExist = await this.sqliteHandler.get(queryToGetCodePromo, id);
+          if(!codepromoExist){
+              reject("Code promotionnel introuvable");
+              await this.sqliteHandler.close();
+              return;
+          }
           const codeExist = await this.sqliteHandler.get('SELECT * FROM promotion WHERE code = ? AND id != ?', [code,id]);
           if(codeExist){
               reject("Le code promo existe déjà");
@@ -53,19 +60,26 @@ class CodePromoController extends Controller{
               const stmtUpdate = await this.sqliteHandler.prepare(queryToUpdateCodePromo);
               stmtUpdate.run([code,description, id]);
               stmtUpdate.finalize();
+              resolve();
           }catch (e) {
               console.log(e);
               reject(e);
           }finally {
               await this.sqliteHandler.close();
           }
-          resolve();
       });
   }
 
   async deleteCodePromo(codePromoId){
     return new Promise(async (resolve, reject) => {
       await this.sqliteHandler.open(this.dbPath);
+        const queryToGetCodePromo = 'SELECT * FROM promotion WHERE id = ?';
+        const codepromoExist = await this.sqliteHandler.get(queryToGetCodePromo, codePromoId);
+        if(!codepromoExist){
+            reject("Code promotionnel introuvable");
+            await this.sqliteHandler.close();
+            return;
+        }
       const queryToDeleteQrcode = 'DELETE FROM qrcode WHERE promotionId = ?';
       const queryToDeleteCodePromo = 'DELETE FROM promotion WHERE id = ?';
       const stmtQrCode = await this.sqliteHandler.prepare(queryToDeleteQrcode);
@@ -76,13 +90,13 @@ class CodePromoController extends Controller{
 
         stmtCodePromo.run(codePromoId);
         stmtCodePromo.finalize();
+        resolve('succès');
       }catch (e) {
         console.log(e);
         reject(e);
       }finally {
           await this.sqliteHandler.close();
       }
-      resolve('succès');
     });
   }
 

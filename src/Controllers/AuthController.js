@@ -1,6 +1,5 @@
-const cryptotools = require('./CryptoTools');
+const cryptotools = require('../Utils/CryptoTools');
 const Controller = require('./Controller');
-
 
 class AuthController extends Controller{
 
@@ -35,14 +34,14 @@ class AuthController extends Controller{
                 const stmt = await this.sqliteHandler.prepare(queryToInsertAdmin);
                 stmt.run([login,email,password]);
                 stmt.finalize();
+                const newAdmin = await this.getLoginExist(login);
+                resolve(newAdmin);
             }catch (e) {
                 console.error(e);
                 reject(e);
             }finally {
                 await this.sqliteHandler.close();
             }
-            const newAdmin = await this.getLoginExist(login);
-            resolve(newAdmin);
         });
     }
 
@@ -53,13 +52,13 @@ class AuthController extends Controller{
             let result;
             try{
                 result = await this.sqliteHandler.all(queryToGetAllAdmins);
+                resolve(result);
             }catch (e) {
                 console.error(e);
                 reject(e);
             }finally {
                 await this.sqliteHandler.close();
             }
-            resolve(result);
         });
 
     }
@@ -87,13 +86,13 @@ class AuthController extends Controller{
                 const stmtUpdate = await this.sqliteHandler.prepare(queryToUpdateAdmin);
                 stmtUpdate.run(params);
                 stmtUpdate.finalize();
+                resolve("succès");
             }catch (e) {
                 console.log(e);
                 reject(e);
             }finally {
                 await this.sqliteHandler.close();
             }
-            resolve("succès");
         });
     }
 
@@ -105,13 +104,13 @@ class AuthController extends Controller{
             try{
                 stmtAdmin.run(adminId);
                 stmtAdmin.finalize();
+                resolve('succès');
             }catch (e) {
                 console.log(e);
                 reject(e);
             }finally {
                 await this.sqliteHandler.close();
             }
-            resolve('succès');
         });
     }
 

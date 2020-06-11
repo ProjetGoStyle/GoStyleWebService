@@ -40,13 +40,13 @@ class StatistiqueController extends Controller{
             try{
                 stmt.run([qrCodeId, this.convertToString(new Date())])
                 stmt.finalize();
+                resolve();
             }catch (e) {
                 console.error(e);
                 reject(e)
             }finally {
                 await this.sqliteHandler.close();
             }
-            resolve();
         });
     }
 
@@ -60,13 +60,13 @@ class StatistiqueController extends Controller{
             let result;
             try{
                 result = await this.sqliteHandler.all(queryToCountUtilisationByCodePromo);
+                resolve(result);
             }catch (e) {
                 console.error(e);
                 reject(e);
             }finally {
                 await this.sqliteHandler.close();
             }
-            resolve(result);
         });
     }
 
@@ -95,13 +95,13 @@ class StatistiqueController extends Controller{
                 }else
                     params = [this.convertToString(startDate),this.convertToString(new Date())];
                 result = await this.sqliteHandler.all(queryAvgUtilisationByDay, params);
+                resolve(result);
             }catch (e) {
                 console.error(e);
                 reject(e);
             }finally {
                 await this.sqliteHandler.close();
             }
-            resolve(result);
         });
     }
 }

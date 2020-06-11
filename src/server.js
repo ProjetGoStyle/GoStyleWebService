@@ -8,6 +8,7 @@ const SqliteHandler = require("../src/Dal/SqliteHandler");
 const CodePromoController = require('./Controllers/CodePromoController');
 const AuthController = require('./Controllers/AuthController');
 const StatistiqueController = require('./Controllers/StatistiqueController');
+const CheckData = require('./Utils/CheckData');
 const express = require("express");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -38,41 +39,6 @@ module.exports = swaggerSpec;
 app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(session({ secret: 'secretkey' }));
 
-const isAuth = (req) => {
-     const tokenSession = req.session.token;
-     const tokenCookie = req.cookies.token ? req.cookies.token : req.get('Authorization');
-     if (!tokenSession && !tokenCookie)
-          return false;
-     return tokenSession === tokenCookie;
-};
-const replaceSymbol = (text) => {
-    const regexp = /[&<>"'/=]/g;
-    const map = {
-        '&': '',
-        '<': '',
-        '>': '',
-        '"': '',
-        "'": '',
-        "=": '',
-        "/": ''
-    };
-    let charFind = text.search(regexp);
-    while(charFind !== -1){
-        text = text.replace(regexp, (m) => map[m]);
-        charFind = text.search(regexp);
-    }
-    return text;
-}
-const checkInputToReplaceSymbol = (inputObject) => {
-    if(!inputObject)
-        return null;
-
-    for (const property in inputObject) {
-        if(inputObject.hasOwnProperty(property))
-            inputObject[property] = replaceSymbol(inputObject[property])
-    }
-    return inputObject;
-}
 
 app.use('/style', express.static(pathPublicFolder + '/css'));
 app.use('/js', express.static(pathPublicFolder + '/js'));
@@ -84,14 +50,14 @@ app.get('/', async (req, res) => {
      res.sendFile(pathPublicFolder + '/login.html');
 });
 app.get('/promocodes', (req, res) => {
-     if (!isAuth(req)) {
+     if (!CheckData.isAuth(req)) {
           res.redirect('/');
           return;
      }
      res.sendFile(pathPublicFolder + '/promocode.html');
 });
 app.get('/administrateurs', (req, res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.redirect('/');
         return;
     }
@@ -107,7 +73,7 @@ app.post("/login", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
     setTimeout(() => {},1500);
-    const token = await authController.login(replaceSymbol(req.body.login), replaceSymbol(req.body.password));
+    const token = await authController.login(CheckData.replaceSymbol(req.body.login), CheckData.replaceSymbol(req.body.password));
     if (!token)
         res.redirect(404, '/');
     else {
@@ -161,7 +127,7 @@ app.post(api+"/auth", async (req, res) => {
     res.append("Content-Type", "application/json");
     req.session.token = null;
     setTimeout(() => {},1500);
-    const token = await authController.login(replaceSymbol(req.body.login), replaceSymbol(req.body.password));
+    const token = await authController.login(CheckData.replaceSymbol(req.body.login), CheckData.replaceSymbol(req.body.password));
     if (!token)
         res.status(401).send();
     else {
@@ -202,7 +168,7 @@ app.get(api + "/coupon/:id", async (req, res) => {
     if (isNaN(req.params.id)) {
         res.status(404).send();
     }
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -234,7 +200,7 @@ app.get(api + "/coupon/:id", async (req, res) => {
  *          description: Succès
  */
 app.get(api + "/coupons", async (req, res) => {
-     if (!isAuth(req)) {
+     if (!CheckData.isAuth(req)) {
           res.status(401).send();
           return;
      }
@@ -279,15 +245,17 @@ app.get(api + "/coupons", async (req, res) => {
 *          description: Succès
 */
 app.post(api + "/coupon", async (req, res) => {
-     if (!isAuth(req)) {
+     if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
      }
-     const couponAdmin = checkInputToReplaceSymbol(req.body);
+     const couponAdmin = CheckData.checkInputToReplaceSymbol(req.body);
      codePromoController.postCodePromo(couponAdmin)
           .then((result) => {
+              console.log(result);
                res.status(200).send(result);
           }).catch((erreur) => {
+              console.log(erreur);
                res.status(500).send(erreur);
           });
 });
@@ -318,7 +286,7 @@ app.post(api + "/coupon", async (req, res) => {
  *          description: Succès
  */
 app.put(api+'/coupon/:id', async(req,res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -332,12 +300,12 @@ app.put(api+'/coupon/:id', async(req,res) => {
         id: req.params.id
     };
 
-    codePromoController.updateCodePromo(checkInputToReplaceSymbol(updateCodePromo))
+    codePromoController.updateCodePromo(CheckData.checkInputToReplaceSymbol(updateCodePromo))
         .then(()=> {
             res.status(200).send();
         })
         .catch((err) => {
-            res.status(500).send();
+            res.status(500).send({message:err});
         });
 });
 
@@ -367,7 +335,7 @@ app.put(api+'/coupon/:id', async(req,res) => {
  *          description: Succès
  */
 app.delete(api + "/coupon/:id", async (req, res) => {
-     if (!isAuth(req)) {
+     if (!CheckData.isAuth(req)) {
          res.status(401).send();
          return;
      }
@@ -379,7 +347,7 @@ app.delete(api + "/coupon/:id", async (req, res) => {
           .then((result) => {
                res.status(200).send();
           }).catch((erreur) => {
-               res.status(404).send(erreur);
+               res.status(404).send({message: erreur});
           });
 });
 
@@ -403,7 +371,7 @@ app.delete(api + "/coupon/:id", async (req, res) => {
  *          description: Succès
  */
 app.get(api + '/statistiques' , async (req,res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -420,7 +388,7 @@ app.get(api + '/statistiques' , async (req,res) => {
         statistics["numberOfUseByCodePromo"] = await statistiqueController.countUtilisationByCodePromo();
         res.status(200).send(statistics);
     }catch (err) {
-        res.status(500).send(err);
+        res.status(500).send({message: err});
     }
 });
 
@@ -458,7 +426,7 @@ app.get(api + '/statistiques' , async (req,res) => {
  *          description: Succès
  */
 app.post(api + '/admin', async(req,res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -467,12 +435,12 @@ app.post(api + '/admin', async(req,res) => {
         email: req.body.email,
         password: req.body.password
     }
-    authController.insertAdmin(checkInputToReplaceSymbol(authObject))
+    authController.insertAdmin(CheckData.checkInputToReplaceSymbol(authObject))
         .then((newAdmin) => {
             res.status(200).send(newAdmin);
         })
         .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send({message: err});
         });
 });
 
@@ -496,7 +464,7 @@ app.post(api + '/admin', async(req,res) => {
  *          description: Succès
  */
 app.get(api + '/admins', async(req,res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -505,7 +473,7 @@ app.get(api + '/admins', async(req,res) => {
         .then((admins) => {
             res.status(200).send(admins);
         }).catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send({message: err});
         });
 });
 
@@ -535,7 +503,7 @@ app.get(api + '/admins', async(req,res) => {
  *          description: Succès
  */
 app.delete(api + '/admin/:id', async(req,res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -549,7 +517,7 @@ app.delete(api + '/admin/:id', async(req,res) => {
             res.status(200).send();
         })
         .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send({message: err});
         });
 });
 
@@ -579,7 +547,7 @@ app.delete(api + '/admin/:id', async(req,res) => {
  *          description: Récupération OK
  */
 app.put(api + '/admin/:id', async(req,res) => {
-    if (!isAuth(req)) {
+    if (!CheckData.isAuth(req)) {
         res.status(401).send();
         return;
     }
@@ -595,11 +563,11 @@ app.put(api + '/admin/:id', async(req,res) => {
     };
 
 
-    authController.updateAdmin(checkInputToReplaceSymbol(authObject))
+    authController.updateAdmin(CheckData.checkInputToReplaceSymbol(authObject))
         .then((response) => {
             res.status(200).send();
         })
         .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send({message: err});
         })
 });

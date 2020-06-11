@@ -28,7 +28,7 @@ addCodePromo.onsubmit = (event) => {
     }).then(async (response) => {
         const codepromo = await response.json();
         if (response.status === 500)
-            displayError(codepromo.erreur);
+            displayError(codepromo);
         else
             promoCodeTable.appendChild(createTableElementForCodePromo(codepromo.id, codepromo.code, codepromo.description));
     }).catch(catchFunction);
@@ -42,7 +42,7 @@ updateCodePromo.onsubmit = (event) => {
         description: descriptionInputUpdate.value
     };
 
-    if(!checkCodePromoObject(codeObject)) return;
+    //if(!checkCodePromoObject(codeObject)) return;
 
     fetch('/api/coupon/'+codepromoIdUpdate.value, {
         method: 'PUT',
@@ -50,7 +50,8 @@ updateCodePromo.onsubmit = (event) => {
         headers: header,
         body: JSON.stringify(codeObject)
     }).then(async (response) => {
-        location.reload();
+        //location.reload();
+        console.dir(response);
     }).catch(catchFunction);
 };
 
